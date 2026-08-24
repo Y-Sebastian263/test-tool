@@ -296,6 +296,432 @@
     background: color-mix(in srgb, var(--accent) 15%, transparent);
   }
 
+  /* ---- 企画支援ツール共通（同一ページ内オーバーレイ） ---- */
+  .tool-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:3000;
+    background: radial-gradient(circle at 50% -10%, var(--bg2), var(--bg) 60%);
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    text-align:center;
+    padding:24px 16px;
+    overflow-y:auto;
+    transition: background .3s ease;
+  }
+  .tool-overlay.open{ display:flex; }
+  .quiz-timer-view.time-up{
+    background: radial-gradient(circle at 50% -10%, #3a0e10, #1c0508 60%);
+  }
+  .tool-back-btn{
+    position:fixed;
+    top:16px; left:16px;
+    z-index:3100;
+    font-size:13px;
+    padding:8px 18px;
+    border:1px solid var(--accent);
+    border-radius:999px;
+    background: var(--bg);
+    color: var(--accent);
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .tool-back-btn:hover{
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+  .tool-btn{
+    font-size:15px;
+    padding:10px 24px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background: transparent;
+    color: var(--text);
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .tool-btn:hover{
+    border-color:var(--accent);
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+  .tool-btn.primary{ border-color:var(--accent); color:var(--accent); }
+  .tool-btn.active{
+    border-color:var(--accent);
+    color:var(--text);
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+  .quiz-heading{
+    font-size:14px; letter-spacing:0.35em; font-weight:400; color:var(--muted);
+    margin:0; text-transform:uppercase;
+  }
+  .quiz-subtitle{
+    font-size:12px; color:var(--muted); margin:-18px 0 0 0; letter-spacing:0.1em;
+  }
+  .quiz-timer-display{
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(72px, 18vw, 200px);
+    font-weight:700;
+    letter-spacing:0.03em;
+    color: var(--text);
+    text-shadow: 0 0 50px color-mix(in srgb, var(--accent) 35%, transparent);
+    transition: color .3s ease, text-shadow .3s ease;
+  }
+  .quiz-timer-view.time-up .quiz-timer-display{
+    color:#ff5c5c;
+    text-shadow: 0 0 60px rgba(255,92,92,0.55);
+    animation: quizPulse 1s ease-in-out infinite;
+  }
+  @keyframes quizPulse{
+    0%, 100%{ transform:scale(1); }
+    50%{ transform:scale(1.04); }
+  }
+  .quiz-time-up-label{
+    display:none;
+    font-size: clamp(16px, 3vw, 26px);
+    letter-spacing:0.2em;
+    color:#ff5c5c;
+    font-weight:700;
+  }
+  .quiz-timer-view.time-up .quiz-time-up-label{ display:block; }
+  .quiz-presets{
+    display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
+  }
+  .quiz-presets button{
+    color: var(--muted);
+    font-size:14px;
+    padding:8px 18px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background: transparent;
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .quiz-presets button:hover, .quiz-presets button.active{
+    color:var(--text);
+    border-color:var(--accent);
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+  .quiz-custom{
+    display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:center;
+  }
+  .quiz-custom input{
+    width:64px;
+    font-size:15px;
+    padding:7px 8px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background: transparent;
+    color: var(--text);
+    font-family: inherit;
+    text-align:center;
+  }
+  .quiz-custom-sep{ color: var(--muted); font-size:15px; }
+  .quiz-custom label{ font-size:13px; color:var(--muted); }
+  .quiz-custom button{
+    font-size:14px;
+    padding:7px 16px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background: transparent;
+    color: var(--muted);
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .quiz-custom button:hover{ color:var(--text); border-color:var(--accent); }
+  .quiz-controls{ display:flex; gap:12px; }
+  .quiz-controls button{
+    font-size:15px;
+    padding:10px 26px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background: transparent;
+    color: var(--text);
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .quiz-controls button:hover{
+    border-color:var(--accent);
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+  .quiz-controls button.start{ border-color: var(--accent); color: var(--accent); }
+
+  /* ---- ダイス ---- */
+  .dice-settings{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center;
+    font-size: clamp(18px, 3vw, 30px);
+    color:var(--muted);
+  }
+  .dice-settings input{
+    width: clamp(60px, 9vw, 100px);
+    font-size: clamp(19px, 3vw, 32px);
+    padding:6px 8px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    background: transparent;
+    color: var(--text);
+    font-family: inherit;
+    text-align:center;
+  }
+  .dice-results{
+    display:flex; gap: clamp(8px, 1.6vw, 16px); flex-wrap:wrap; justify-content:center;
+    max-width:900px;
+  }
+  .dice-die{
+    min-width: clamp(64px, 13vw, 130px);
+    height: clamp(64px, 13vw, 130px);
+    padding:0 6px;
+    border-radius:16px;
+    border:1px solid var(--line);
+    background: var(--bg2);
+    display:flex; align-items:center; justify-content:center;
+    font-size: clamp(30px, 7vw, 64px);
+    font-weight:700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .dice-total{
+    font-size: clamp(22px, 4vw, 40px);
+    color:var(--text); font-weight:600; min-height:1.3em;
+  }
+  .dice-btn-row{
+    display:flex; gap:12px; flex-wrap:wrap; justify-content:center;
+  }
+
+  /* ---- チンチロ（16:9固定枠） ---- */
+  .chinchiro-frame{
+    width: min(94vw, 165vh);
+    aspect-ratio: 16 / 9;
+    max-height: 92vh;
+    display:flex;
+    flex-direction:column;
+    gap: clamp(8px, 1.4vh, 18px);
+    padding: clamp(16px, 2.6vh, 32px) clamp(20px, 3vw, 44px);
+    background: color-mix(in srgb, var(--bg2) 65%, transparent);
+    border:1px solid var(--line);
+    border-radius:22px;
+    box-sizing:border-box;
+    overflow:hidden;
+  }
+  .chinchiro-frame-header{
+    display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+    flex-shrink:0;
+  }
+  .chinchiro-title{
+    margin:0;
+    font-size: clamp(14px, 2.2vh, 20px);
+    letter-spacing:0.3em;
+    font-weight:400;
+    color:var(--muted);
+    text-transform:uppercase;
+  }
+  .chinchiro-progress{
+    margin:0;
+    font-size: clamp(12px, 1.8vh, 16px);
+    color:var(--accent);
+    font-weight:600;
+  }
+  .chinchiro-columns{
+    display:flex; flex-direction:row;
+    gap: clamp(16px, 2.6vw, 40px);
+    width:100%;
+    flex:1;
+    min-height:0;
+    align-items:stretch;
+  }
+  .chinchiro-left{
+    flex:0 0 40%;
+    min-width:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap: clamp(8px,1.4vh,16px);
+    overflow-y:auto;
+    border-right:1px solid var(--line);
+    padding-right: clamp(16px, 2.6vw, 40px);
+  }
+  .chinchiro-right{
+    flex:1;
+    min-width:0;
+    min-height:0;
+    display:flex; flex-direction:column; gap: clamp(6px,1vh,10px);
+  }
+  .chinchiro-setup{
+    display:flex; flex-direction:column; gap: clamp(8px,1.4vh,16px); align-items:center;
+    width:100%;
+  }
+  .chinchiro-count-row{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:center; }
+  .chinchiro-rule-row{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:center; }
+  .chinchiro-setup-label{ font-size: clamp(12px,1.6vh,15px); color:var(--muted); margin:0; }
+  .chinchiro-name-list{ display:flex; flex-direction:column; gap:6px; align-items:center; }
+  .chinchiro-name-list input{
+    width:100%;
+    max-width:200px;
+    font-size: clamp(13px,1.7vh,16px);
+    padding:6px 10px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background: transparent;
+    color: var(--text);
+    font-family: inherit;
+    text-align:center;
+  }
+  .chinchiro-turn-label{
+    font-size: clamp(16px, 2.6vh, 24px);
+    color:var(--accent); font-weight:700; min-height:1.3em;
+  }
+  .chinchiro-board-heading{
+    margin:0; flex-shrink:0;
+    font-size: clamp(11px,1.4vh,13px); letter-spacing:0.15em; color:var(--muted); text-transform:uppercase;
+  }
+  .chinchiro-board{
+    display:flex; flex-direction:column; gap: clamp(10px,1.6vh,16px); width:100%;
+    flex:1; min-height:0; justify-content:center; overflow-y:auto;
+  }
+  .chinchiro-board-row{
+    display:flex; flex-direction:column; gap: clamp(6px,1vh,10px);
+    padding: clamp(14px,2.2vh,24px) clamp(18px,2.2vw,28px);
+    border:1px solid var(--line);
+    border-radius:16px;
+    background: color-mix(in srgb, var(--bg2) 60%, transparent);
+  }
+  .chinchiro-board-row.done{ border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+  .chinchiro-board-row.waiting{ color:var(--muted); }
+  .chinchiro-row-top{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .chinchiro-row-name-group{ display:flex; align-items:center; gap: clamp(8px,1.2vw,14px); min-width:0; }
+  .chinchiro-rank-badge{
+    flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    width: clamp(30px, 4.4vh, 44px);
+    height: clamp(30px, 4.4vh, 44px);
+    border-radius:50%;
+    border:2px solid var(--line);
+    font-size: clamp(13px, 1.9vh, 18px);
+    font-weight:700;
+    color:var(--muted);
+  }
+  .chinchiro-board-row.rank-1{ border-color: color-mix(in srgb, #ffd54f 45%, var(--line)); }
+  .chinchiro-board-row.rank-1 .chinchiro-rank-badge{
+    border-color:#ffd54f;
+    color:#ffd54f;
+    background: color-mix(in srgb, #ffd54f 20%, transparent);
+  }
+  .chinchiro-board-row.rank-2{ border-color: color-mix(in srgb, #c0c6cc 45%, var(--line)); }
+  .chinchiro-board-row.rank-2 .chinchiro-rank-badge{
+    border-color:#c0c6cc;
+    color:#c0c6cc;
+    background: color-mix(in srgb, #c0c6cc 20%, transparent);
+  }
+  .chinchiro-board-row.rank-3{ border-color: color-mix(in srgb, #d08a52 45%, var(--line)); }
+  .chinchiro-board-row.rank-3 .chinchiro-rank-badge{
+    border-color:#d08a52;
+    color:#d08a52;
+    background: color-mix(in srgb, #d08a52 20%, transparent);
+  }
+  .chinchiro-board-row .name{
+    font-weight:700; flex-shrink:1; min-width:0;
+    font-size: clamp(18px, 2.6vh, 26px);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .chinchiro-row-dice-group{
+    display:flex; align-items:center; justify-content:flex-end; gap: clamp(8px,1.2vw,14px);
+    flex-shrink:0;
+  }
+  .chinchiro-board-row .hand{
+    font-size: clamp(14px, 1.9vh, 19px);
+    color:var(--muted); text-align:right; white-space:nowrap;
+  }
+  .chinchiro-result{
+    font-size: clamp(14px, 1.8vh, 18px);
+    color:var(--text); line-height:1.7;
+  }
+  .chinchiro-result .winner-line{
+    font-size: clamp(20px, 3vh, 28px);
+    color:var(--accent); font-weight:700; margin-bottom:8px;
+  }
+  .chinchiro-final-actions{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
+
+  .chinchiro-frame .dice-die{
+    min-width: clamp(40px, 6.4vh, 64px);
+    height: clamp(40px, 6.4vh, 64px);
+    font-size: clamp(18px, 3.4vh, 30px);
+    border-radius:12px;
+  }
+  .chinchiro-frame .dice-results{ gap: clamp(6px,1vh,10px); margin-top: clamp(10px,1.8vh,20px); }
+  #chinchiroNextBtn{ margin-top: clamp(10px,1.8vh,20px); }
+
+  /* ---- 配信歴起算ツール ---- */
+  .streamcalc-input-row{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center;
+    font-size: clamp(14px, 1.8vw, 18px);
+    color:var(--muted);
+  }
+  .streamcalc-input-row input[type="date"]{
+    font-size: clamp(15px, 1.8vw, 18px);
+    padding:8px 10px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background: transparent;
+    color: var(--text);
+    font-family: inherit;
+  }
+  .streamcalc-results{
+    display:flex; flex-direction:column; gap:8px;
+    width:100%; max-width:440px;
+  }
+  .streamcalc-row{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:10px 16px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    background: color-mix(in srgb, var(--bg2) 60%, transparent);
+    font-size: clamp(14px, 1.8vw, 18px);
+  }
+  .streamcalc-label{ font-weight:700; flex-shrink:0; color:var(--text); }
+  .streamcalc-date{ color:var(--muted); flex:1; text-align:right; padding-right:4px; }
+  .streamcalc-remove-btn{
+    flex-shrink:0;
+    width:22px; height:22px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    background: transparent;
+    color: var(--muted);
+    font-size:13px;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition: all .15s ease;
+  }
+  .streamcalc-remove-btn:hover{ color:var(--text); border-color:var(--accent); }
+  .streamcalc-empty-hint{ font-size:13px; color:var(--muted); }
+  .streamcalc-add-row{
+    display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:center;
+  }
+  .streamcalc-add-row input[type="number"]{
+    width:100px;
+    font-size:15px;
+    padding:7px 10px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background: transparent;
+    color: var(--text);
+    font-family: inherit;
+    text-align:center;
+  }
+  .streamcalc-add-row select{
+    font-size:15px;
+    padding:7px 10px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background: var(--bg2);
+    color: var(--text);
+    font-family: inherit;
+  }
+
   /* ---- header内メニュー ---- */
   .site-menu{
     position:relative;
@@ -352,16 +778,24 @@
     color:var(--accent);
     text-transform:uppercase;
   }
-  .site-menu-panel a{
+  .site-menu-panel a,
+  .site-menu-panel .site-menu-quiz-btn{
     display:block;
+    width:100%;
     font-size:13px;
     color:var(--text);
     text-decoration:none;
     padding:6px 8px;
     border-radius:8px;
     transition: background .15s ease;
+    background:none;
+    border:none;
+    text-align:left;
+    font-family:inherit;
+    cursor:pointer;
   }
-  .site-menu-panel a:hover{
+  .site-menu-panel a:hover,
+  .site-menu-panel .site-menu-quiz-btn:hover{
     background: color-mix(in srgb, var(--accent) 18%, transparent);
   }
   .site-menu-divider{
@@ -934,6 +1368,14 @@
         <a href="https://letsview.com/jp/" target="_blank" rel="noopener noreferrer">Let's View</a>
         <a href="https://syncroom.yamaha.com/v2/play/dl/" target="_blank" rel="noopener noreferrer">SYNCROOM2</a>
       </div>
+      <hr class="site-menu-divider">
+      <div class="site-menu-section">
+        <p class="site-menu-heading">企画支援</p>
+        <button type="button" id="quizTimerOpenBtn" class="site-menu-quiz-btn">カウントダウンタイマー</button>
+        <button type="button" id="diceOpenBtn" class="site-menu-quiz-btn">ダイス</button>
+        <button type="button" id="chinchiroOpenBtn" class="site-menu-quiz-btn">チンチロ</button>
+        <button type="button" id="streamCalcOpenBtn" class="site-menu-quiz-btn">配信歴起算ツール</button>
+      </div>
     </div>
   </div>
 </header>
@@ -1035,6 +1477,140 @@
   Copyright &copy; Y++ All Rights Reserved.
 </footer>
 
+<div class="tool-overlay quiz-timer-view" id="quizTimerView">
+  <button type="button" id="quizBackBtn" class="tool-back-btn">← 戻る</button>
+
+  <h1 class="quiz-heading">Countdown Timer</h1>
+
+  <div class="quiz-timer-display" id="quizTimerDisplay">00:00</div>
+  <p class="quiz-time-up-label">TIME UP</p>
+
+  <div class="quiz-presets" id="quizPresets">
+    <button type="button" data-seconds="60">1分</button>
+    <button type="button" data-seconds="180">3分</button>
+    <button type="button" data-seconds="300">5分</button>
+    <button type="button" data-seconds="600">10分</button>
+    <button type="button" data-seconds="1800">30分</button>
+    <button type="button" data-seconds="3600">1時間</button>
+  </div>
+
+  <div class="quiz-custom">
+    <label for="quizCustomHours">自由入力</label>
+    <input type="number" id="quizCustomHours" min="0" max="99" placeholder="時">
+    <span class="quiz-custom-sep">:</span>
+    <input type="number" id="quizCustomMinutes" min="0" max="59" placeholder="分">
+    <span class="quiz-custom-sep">:</span>
+    <input type="number" id="quizCustomSeconds" min="0" max="59" placeholder="秒">
+    <button type="button" id="quizCustomSetBtn">設定</button>
+  </div>
+
+  <div class="quiz-controls">
+    <button type="button" class="start" id="quizStartBtn">開始</button>
+    <button type="button" id="quizPauseBtn">一時停止</button>
+    <button type="button" id="quizStopBtn">終了</button>
+  </div>
+</div>
+
+<div class="tool-overlay" id="diceView">
+  <button type="button" id="diceBackBtn" class="tool-back-btn">← 戻る</button>
+
+  <h1 class="quiz-heading">Dice</h1>
+
+  <div class="dice-settings">
+    <input type="number" id="diceSidesInput" min="2" max="100" value="6">
+    面のサイコロを
+    <input type="number" id="diceCountInput" min="1" max="10" value="1">
+    個ふる
+  </div>
+
+  <div class="dice-btn-row">
+    <button type="button" id="diceRollBtn" class="tool-btn primary">振る</button>
+    <button type="button" id="diceResetBtn" class="tool-btn">リセット</button>
+  </div>
+
+  <div class="dice-results" id="diceResults"></div>
+  <p class="dice-total" id="diceTotal"></p>
+</div>
+
+<div class="tool-overlay" id="chinchiroView">
+  <button type="button" id="chinchiroBackBtn" class="tool-back-btn">← 戻る</button>
+
+  <div class="chinchiro-frame">
+    <div class="chinchiro-frame-header">
+      <h1 class="chinchiro-title">Chinchiro</h1>
+      <p class="chinchiro-progress" id="chinchiroProgress"></p>
+    </div>
+
+    <div class="chinchiro-columns">
+      <div class="chinchiro-left">
+        <div class="chinchiro-setup" id="chinchiroSetup">
+          <div class="chinchiro-count-row">
+            <span class="chinchiro-setup-label">人数：</span>
+            <button type="button" class="tool-btn chinchiro-count-btn" data-count="2">2人</button>
+            <button type="button" class="tool-btn chinchiro-count-btn" data-count="3">3人</button>
+            <button type="button" class="tool-btn chinchiro-count-btn" data-count="4">4人</button>
+          </div>
+          <div class="chinchiro-name-list" id="chinchiroNameList"></div>
+
+          <div class="chinchiro-rule-row">
+            <span class="chinchiro-setup-label">目なしのルール：</span>
+            <button type="button" class="tool-btn chinchiro-rule-btn" data-rule="once">振り直しなし</button>
+            <button type="button" class="tool-btn chinchiro-rule-btn" data-rule="max3">3回まで振り直し</button>
+            <button type="button" class="tool-btn chinchiro-rule-btn" data-rule="untilHand">役が出るまで振り直し</button>
+          </div>
+
+          <button type="button" id="chinchiroStartBtn" class="tool-btn primary">対戦開始</button>
+        </div>
+
+        <div id="chinchiroTurnControls" hidden>
+          <p class="chinchiro-turn-label" id="chinchiroTurnLabel"></p>
+          <button type="button" id="chinchiroRollBtn" class="tool-btn primary">サイコロを振る</button>
+          <div class="dice-results" id="chinchiroDiceResults"></div>
+          <button type="button" id="chinchiroNextBtn" class="tool-btn" hidden>次のプレイヤーへ</button>
+        </div>
+
+        <div id="chinchiroFinalPanel" hidden>
+          <div class="chinchiro-result" id="chinchiroResult"></div>
+          <div class="chinchiro-final-actions" id="chinchiroFinalActions">
+            <button type="button" id="chinchiroReplayBtn" class="tool-btn primary">もう一度</button>
+            <button type="button" id="chinchiroChangePlayersBtn" class="tool-btn">人数を変更</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="chinchiro-right">
+        <p class="chinchiro-board-heading">対戦状況</p>
+        <div class="chinchiro-board" id="chinchiroBoard"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tool-overlay" id="streamCalcView">
+  <button type="button" id="streamCalcBackBtn" class="tool-back-btn">← 戻る</button>
+
+  <h1 class="quiz-heading">配信歴起算</h1>
+
+  <div class="streamcalc-input-row">
+    <label for="streamStartDate">初配信日</label>
+    <input type="date" id="streamStartDate">
+    <button type="button" id="streamRefreshBtn" class="tool-btn">更新</button>
+  </div>
+
+  <div class="streamcalc-results" id="streamCalcResults"></div>
+
+  <div class="streamcalc-add-row">
+    <input type="number" id="streamCustomDays" min="1" placeholder="数値">
+    <select id="streamCustomUnit">
+      <option value="days">日</option>
+      <option value="weeks">週間</option>
+      <option value="months">ヶ月</option>
+    </select>
+    <button type="button" id="streamAddBtn" class="tool-btn primary">＋ 追加</button>
+    <button type="button" id="streamResetBtn" class="tool-btn">リセット</button>
+  </div>
+</div>
+
 <script>
   const weekdays = ["日","月","火","水","木","金","土"];
   const clockEl = document.getElementById("clock");
@@ -1081,6 +1657,589 @@
       siteMenuPanel.classList.remove("open");
     });
   });
+
+  // ---- クイズ企画：カウントダウンタイマー（同一ページ内オーバーレイ） ----
+  const quizTimerOpenBtn = document.getElementById("quizTimerOpenBtn");
+  const quizTimerView = document.getElementById("quizTimerView");
+  const quizBackBtn = document.getElementById("quizBackBtn");
+  const quizTimerDisplay = document.getElementById("quizTimerDisplay");
+  const quizPresets = document.getElementById("quizPresets");
+  const quizCustomHours = document.getElementById("quizCustomHours");
+  const quizCustomMinutes = document.getElementById("quizCustomMinutes");
+  const quizCustomSeconds = document.getElementById("quizCustomSeconds");
+  const quizCustomSetBtn = document.getElementById("quizCustomSetBtn");
+  const quizStartBtn = document.getElementById("quizStartBtn");
+  const quizPauseBtn = document.getElementById("quizPauseBtn");
+  const quizStopBtn = document.getElementById("quizStopBtn");
+
+  let quizTotalSeconds = 0;
+  let quizRemainingSeconds = 0;
+  let quizInterval = null;
+
+  function quizFormatTime(sec){
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    if (h > 0) return `${pad(h)}:${pad(m)}:${pad(s)}`;
+    return `${pad(m)}:${pad(s)}`;
+  }
+
+  function quizRender(){
+    quizTimerDisplay.textContent = quizFormatTime(quizRemainingSeconds);
+  }
+
+  function quizSetDuration(seconds){
+    quizStop();
+    quizTotalSeconds = seconds;
+    quizRemainingSeconds = seconds;
+    quizTimerView.classList.remove("time-up");
+    quizRender();
+  }
+
+  function quizStart(){
+    if (quizRemainingSeconds <= 0) return;
+    if (quizInterval) return;
+
+    quizTimerView.classList.remove("time-up");
+
+    quizInterval = setInterval(() => {
+      if (quizRemainingSeconds <= 0){
+        clearInterval(quizInterval);
+        quizInterval = null;
+        quizTimerView.classList.add("time-up");
+        return;
+      }
+      quizRemainingSeconds--;
+      quizRender();
+      if (quizRemainingSeconds <= 0){
+        clearInterval(quizInterval);
+        quizInterval = null;
+        quizTimerView.classList.add("time-up");
+      }
+    }, 1000);
+  }
+
+  function quizPause(){
+    if (!quizInterval) return;
+    clearInterval(quizInterval);
+    quizInterval = null;
+  }
+
+  function quizStop(){
+    if (quizInterval){
+      clearInterval(quizInterval);
+      quizInterval = null;
+    }
+    quizRemainingSeconds = quizTotalSeconds;
+    quizTimerView.classList.remove("time-up");
+    quizRender();
+  }
+
+  quizPresets.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-seconds]");
+    if (!btn) return;
+
+    quizPresets.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    quizSetDuration(parseInt(btn.dataset.seconds, 10));
+  });
+
+  quizCustomSetBtn.addEventListener("click", () => {
+    const h = parseInt(quizCustomHours.value, 10) || 0;
+    const m = parseInt(quizCustomMinutes.value, 10) || 0;
+    const s = parseInt(quizCustomSeconds.value, 10) || 0;
+    const total = h * 3600 + m * 60 + s;
+    if (total <= 0) return;
+
+    quizPresets.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+    quizSetDuration(total);
+  });
+
+  quizStartBtn.addEventListener("click", quizStart);
+  quizPauseBtn.addEventListener("click", quizPause);
+  quizStopBtn.addEventListener("click", quizStop);
+
+  quizTimerOpenBtn.addEventListener("click", () => {
+    siteMenuPanel.classList.remove("open");
+    quizTimerView.classList.add("open");
+  });
+
+  quizBackBtn.addEventListener("click", () => {
+    quizTimerView.classList.remove("open");
+  });
+
+  quizRender();
+
+  // ---- ダイス ----
+  const diceView = document.getElementById("diceView");
+  const diceOpenBtn = document.getElementById("diceOpenBtn");
+  const diceBackBtn = document.getElementById("diceBackBtn");
+  const diceSidesInput = document.getElementById("diceSidesInput");
+  const diceCountInput = document.getElementById("diceCountInput");
+  const diceRollBtn = document.getElementById("diceRollBtn");
+  const diceResetBtn = document.getElementById("diceResetBtn");
+  const diceResults = document.getElementById("diceResults");
+  const diceTotal = document.getElementById("diceTotal");
+
+  diceOpenBtn.addEventListener("click", () => {
+    siteMenuPanel.classList.remove("open");
+    diceView.classList.add("open");
+  });
+  diceBackBtn.addEventListener("click", () => {
+    diceView.classList.remove("open");
+  });
+
+  diceRollBtn.addEventListener("click", () => {
+    const sides = Math.max(2, Math.min(1000, parseInt(diceSidesInput.value, 10) || 6));
+    const count = Math.max(1, Math.min(20, parseInt(diceCountInput.value, 10) || 1));
+
+    diceResults.innerHTML = "";
+    let total = 0;
+    for (let i = 0; i < count; i++){
+      const value = Math.floor(Math.random() * sides) + 1;
+      total += value;
+      const badge = document.createElement("div");
+      badge.className = "dice-die";
+      badge.textContent = value;
+      diceResults.appendChild(badge);
+    }
+    diceTotal.textContent = count > 1 ? `合計: ${total}` : "";
+  });
+
+  diceResetBtn.addEventListener("click", () => {
+    diceResults.innerHTML = "";
+    diceTotal.textContent = "";
+    diceSidesInput.value = 6;
+    diceCountInput.value = 1;
+  });
+
+  // ---- チンチロ ----
+  const chinchiroView = document.getElementById("chinchiroView");
+  const chinchiroOpenBtn = document.getElementById("chinchiroOpenBtn");
+  const chinchiroBackBtn = document.getElementById("chinchiroBackBtn");
+  const chinchiroSetup = document.getElementById("chinchiroSetup");
+  const chinchiroNameList = document.getElementById("chinchiroNameList");
+  const chinchiroCountBtns = document.querySelectorAll(".chinchiro-count-btn");
+  const chinchiroRuleBtns = document.querySelectorAll(".chinchiro-rule-btn");
+  const chinchiroStartBtn = document.getElementById("chinchiroStartBtn");
+  const chinchiroTurnLabel = document.getElementById("chinchiroTurnLabel");
+  const chinchiroProgress = document.getElementById("chinchiroProgress");
+  const chinchiroTurnControls = document.getElementById("chinchiroTurnControls");
+  const chinchiroFinalPanel = document.getElementById("chinchiroFinalPanel");
+  const chinchiroDiceResults = document.getElementById("chinchiroDiceResults");
+  const chinchiroRollBtn = document.getElementById("chinchiroRollBtn");
+  const chinchiroNextBtn = document.getElementById("chinchiroNextBtn");
+  const chinchiroBoard = document.getElementById("chinchiroBoard");
+  const chinchiroResult = document.getElementById("chinchiroResult");
+  const chinchiroFinalActions = document.getElementById("chinchiroFinalActions");
+  const chinchiroReplayBtn = document.getElementById("chinchiroReplayBtn");
+  const chinchiroChangePlayersBtn = document.getElementById("chinchiroChangePlayersBtn");
+
+  let chinchiroSelectedCount = 2;
+  let chinchiroRerollRule = "max3"; // "once" | "max3" | "untilHand"
+  let chinchiroPlayers = [];
+  let chinchiroCurrentIndex = 0;
+
+  function renderChinchiroNameInputs(count, keepExisting){
+    const prevValues = keepExisting
+      ? Array.from(chinchiroNameList.querySelectorAll("input")).map(inp => inp.value)
+      : [];
+
+    chinchiroNameList.innerHTML = "";
+    for (let i = 0; i < count; i++){
+      const input = document.createElement("input");
+      input.type = "text";
+      input.placeholder = `プレイヤー${i + 1}`;
+      input.value = prevValues[i] || "";
+      chinchiroNameList.appendChild(input);
+    }
+  }
+
+  chinchiroCountBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      chinchiroSelectedCount = parseInt(btn.dataset.count, 10);
+      chinchiroCountBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderChinchiroNameInputs(chinchiroSelectedCount, true);
+    });
+  });
+
+  chinchiroRuleBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      chinchiroRerollRule = btn.dataset.rule;
+      chinchiroRuleBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+    });
+  });
+
+  // 初期表示：2人・3回まで振り直し
+  chinchiroCountBtns[0].classList.add("active");
+  renderChinchiroNameInputs(chinchiroSelectedCount, false);
+  document.querySelector('.chinchiro-rule-btn[data-rule="max3"]').classList.add("active");
+
+  function evaluateChinchiro(dice){
+    const sorted = [...dice].sort((a, b) => a - b);
+    const [a, b, c] = sorted;
+
+    if (a === b && b === c){
+      if (a === 1) return { rankValue: 100, handName: "ピンゾロ" };
+      return { rankValue: 90 + a, handName: `${a}のゾロ目` };
+    }
+
+    const key = sorted.join("");
+    if (key === "456") return { rankValue: 80, handName: "シゴロ" };
+    if (key === "123") return { rankValue: -100, handName: "ヒフミ（役負け）" };
+
+    if (a === b || b === c){
+      const single = a === b ? c : a;
+      return { rankValue: 10 + single, handName: `${single}の目` };
+    }
+
+    return { rankValue: 0, handName: "目なし" };
+  }
+
+  function computeChinchiroRanks(){
+    const played = chinchiroPlayers.filter(p => p.dice.length > 0);
+    const sorted = [...played].sort((a, b) => b.rankValue - a.rankValue);
+    const rankMap = new Map();
+    let currentRank = 0;
+    let prevValue = null;
+    sorted.forEach((p, i) => {
+      if (p.rankValue !== prevValue){
+        currentRank = i + 1;
+        prevValue = p.rankValue;
+      }
+      rankMap.set(p, currentRank);
+    });
+    return rankMap;
+  }
+
+  function renderChinchiroBoard(){
+    chinchiroBoard.innerHTML = "";
+    const rankMap = computeChinchiroRanks();
+    const allPlayed = chinchiroPlayers.every(p => p.dice.length > 0);
+
+    chinchiroPlayers.forEach(p => {
+      const played = p.dice.length > 0;
+      const rank = played ? rankMap.get(p) : null;
+
+      const row = document.createElement("div");
+      const rankClass = (allPlayed && played && rank <= 3) ? ` rank-${rank}` : "";
+      row.className = "chinchiro-board-row " + (played ? "done" : "waiting") + rankClass;
+
+      const top = document.createElement("div");
+      top.className = "chinchiro-row-top";
+
+      const nameGroup = document.createElement("div");
+      nameGroup.className = "chinchiro-row-name-group";
+
+      const badge = document.createElement("span");
+      badge.className = "chinchiro-rank-badge";
+      badge.textContent = played ? `${rank}位` : "-";
+
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "name";
+      nameSpan.textContent = p.name;
+
+      nameGroup.appendChild(badge);
+      nameGroup.appendChild(nameSpan);
+
+      const diceGroup = document.createElement("div");
+      diceGroup.className = "chinchiro-row-dice-group";
+
+      if (played){
+        p.dice.forEach(v => {
+          const die = document.createElement("div");
+          die.className = "dice-die";
+          die.textContent = v;
+          diceGroup.appendChild(die);
+        });
+      }
+
+      top.appendChild(nameGroup);
+      top.appendChild(diceGroup);
+
+      const handSpan = document.createElement("span");
+      handSpan.className = "hand";
+      handSpan.textContent = played ? p.handName : "対戦待ち";
+
+      row.appendChild(top);
+      row.appendChild(handSpan);
+      chinchiroBoard.appendChild(row);
+    });
+  }
+
+  function updateChinchiroTurn(){
+    if (chinchiroCurrentIndex >= chinchiroPlayers.length){
+      finishChinchiro();
+      return;
+    }
+    chinchiroTurnControls.hidden = false;
+    chinchiroFinalPanel.hidden = true;
+
+    const p = chinchiroPlayers[chinchiroCurrentIndex];
+    chinchiroTurnLabel.textContent = `${p.name} の番です`;
+    chinchiroProgress.textContent = `${chinchiroCurrentIndex + 1} / ${chinchiroPlayers.length}人目`;
+    chinchiroDiceResults.innerHTML = "";
+    chinchiroRollBtn.textContent = "サイコロを振る";
+    chinchiroRollBtn.hidden = false;
+    chinchiroNextBtn.hidden = true;
+  }
+
+  function finishChinchiro(){
+    chinchiroTurnControls.hidden = true;
+    chinchiroFinalPanel.hidden = false;
+    chinchiroProgress.textContent = "対戦終了";
+
+    const maxRank = Math.max(...chinchiroPlayers.map(p => p.rankValue));
+    const winners = chinchiroPlayers.filter(p => p.rankValue === maxRank);
+
+    let html = "";
+    if (winners.length === 1){
+      html += `<p class="winner-line">🏆 ${winners[0].name} の勝ち！</p>`;
+    } else {
+      html += `<p class="winner-line">🤝 引き分け：${winners.map(w => w.name).join("、")}</p>`;
+    }
+    const rankMap = computeChinchiroRanks();
+    html += chinchiroPlayers
+      .slice()
+      .sort((x, y) => y.rankValue - x.rankValue)
+      .map(p => `${rankMap.get(p)}位　${p.name}：${p.dice.join("-")}（${p.handName}）`)
+      .join("<br>");
+
+    chinchiroResult.innerHTML = html;
+  }
+
+  chinchiroStartBtn.addEventListener("click", () => {
+    const nameInputs = chinchiroNameList.querySelectorAll("input");
+    chinchiroPlayers = Array.from(nameInputs).map((inp, i) => ({
+      name: inp.value.trim() || `プレイヤー${i + 1}`,
+      dice: [],
+      rankValue: null,
+      handName: "",
+      attempts: 0
+    }));
+    chinchiroCurrentIndex = 0;
+
+    chinchiroSetup.hidden = true;
+
+    renderChinchiroBoard();
+    updateChinchiroTurn();
+  });
+
+  chinchiroRollBtn.addEventListener("click", () => {
+    const p = chinchiroPlayers[chinchiroCurrentIndex];
+    const dice = [1, 2, 3].map(() => Math.floor(Math.random() * 6) + 1);
+    const { rankValue, handName } = evaluateChinchiro(dice);
+
+    p.dice = dice;
+    p.rankValue = rankValue;
+    p.handName = handName;
+    p.attempts++;
+
+    chinchiroDiceResults.innerHTML = "";
+    dice.forEach(v => {
+      const badge = document.createElement("div");
+      badge.className = "dice-die";
+      badge.textContent = v;
+      chinchiroDiceResults.appendChild(badge);
+    });
+
+    renderChinchiroBoard();
+
+    const isMenashi = (handName === "目なし");
+    let canReroll = false;
+    if (isMenashi){
+      if (chinchiroRerollRule === "untilHand"){
+        canReroll = true;
+      } else if (chinchiroRerollRule === "max3"){
+        canReroll = p.attempts < 3;
+      } else {
+        canReroll = false; // "once"
+      }
+    }
+
+    if (canReroll){
+      chinchiroRollBtn.textContent = "振り直す";
+      chinchiroRollBtn.hidden = false;
+      chinchiroNextBtn.hidden = true;
+    } else {
+      chinchiroRollBtn.hidden = true;
+      chinchiroNextBtn.hidden = false;
+    }
+  });
+
+  chinchiroNextBtn.addEventListener("click", () => {
+    chinchiroCurrentIndex++;
+    updateChinchiroTurn();
+  });
+
+  chinchiroReplayBtn.addEventListener("click", () => {
+    chinchiroPlayers.forEach(p => {
+      p.dice = [];
+      p.rankValue = null;
+      p.handName = "";
+      p.attempts = 0;
+    });
+    chinchiroCurrentIndex = 0;
+    renderChinchiroBoard();
+    updateChinchiroTurn();
+  });
+
+  chinchiroChangePlayersBtn.addEventListener("click", () => {
+    chinchiroTurnControls.hidden = true;
+    chinchiroFinalPanel.hidden = true;
+    chinchiroSetup.hidden = false;
+    chinchiroProgress.textContent = "";
+    renderChinchiroNameInputs(chinchiroSelectedCount, true);
+  });
+
+  chinchiroOpenBtn.addEventListener("click", () => {
+    siteMenuPanel.classList.remove("open");
+    chinchiroView.classList.add("open");
+  });
+  chinchiroBackBtn.addEventListener("click", () => {
+    chinchiroView.classList.remove("open");
+  });
+
+  // ---- 配信歴起算ツール ----
+  const streamCalcView = document.getElementById("streamCalcView");
+  const streamCalcOpenBtn = document.getElementById("streamCalcOpenBtn");
+  const streamCalcBackBtn = document.getElementById("streamCalcBackBtn");
+  const streamStartDate = document.getElementById("streamStartDate");
+  const streamRefreshBtn = document.getElementById("streamRefreshBtn");
+  const streamCalcResults = document.getElementById("streamCalcResults");
+  const streamCustomDays = document.getElementById("streamCustomDays");
+  const streamCustomUnit = document.getElementById("streamCustomUnit");
+  const streamAddBtn = document.getElementById("streamAddBtn");
+  const streamResetBtn = document.getElementById("streamResetBtn");
+
+  const STREAM_BASE_MILESTONES = [
+    { label: "100日", type: "days", value: 100 },
+    { label: "150日", type: "days", value: 150 },
+    { label: "半年", type: "months", value: 6 },
+    { label: "200日", type: "days", value: 200 },
+    { label: "300日", type: "days", value: 300 },
+    { label: "1年", type: "years", value: 1 }
+  ];
+  let streamCustomMilestones = []; // { label, type:"days", value:n }
+
+  function streamComputeDate(baseDate, milestone){
+    const d = new Date(baseDate);
+    if (milestone.type === "days") d.setDate(d.getDate() + milestone.value);
+    else if (milestone.type === "months") d.setMonth(d.getMonth() + milestone.value);
+    else if (milestone.type === "years") d.setFullYear(d.getFullYear() + milestone.value);
+    return d;
+  }
+
+  function streamFormatDate(d){
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const w = weekdays[d.getDay()];
+    return `${y}/${m}/${day}（${w}）`;
+  }
+
+  function renderStreamResults(){
+    streamCalcResults.innerHTML = "";
+    const dateVal = streamStartDate.value;
+
+    if (!dateVal){
+      const hint = document.createElement("p");
+      hint.className = "streamcalc-empty-hint";
+      hint.textContent = "初配信日を入力すると結果が表示されます";
+      streamCalcResults.appendChild(hint);
+      return;
+    }
+
+    const baseDate = new Date(dateVal + "T00:00:00");
+
+    const combined = STREAM_BASE_MILESTONES.map(m => ({ ref: m, custom: false }))
+      .concat(streamCustomMilestones.map(m => ({ ref: m, custom: true })));
+
+    const withDates = combined.map(item => ({
+      ref: item.ref,
+      custom: item.custom,
+      date: streamComputeDate(baseDate, item.ref)
+    }));
+    withDates.sort((a, b) => a.date - b.date);
+
+    withDates.forEach(item => {
+      const row = document.createElement("div");
+      row.className = "streamcalc-row";
+
+      const label = document.createElement("span");
+      label.className = "streamcalc-label";
+      label.textContent = item.ref.label;
+
+      const dateSpan = document.createElement("span");
+      dateSpan.className = "streamcalc-date";
+      dateSpan.textContent = streamFormatDate(item.date);
+
+      row.appendChild(label);
+      row.appendChild(dateSpan);
+
+      if (item.custom){
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.className = "streamcalc-remove-btn";
+        removeBtn.textContent = "×";
+        removeBtn.addEventListener("click", () => {
+          const idx = streamCustomMilestones.indexOf(item.ref);
+          if (idx !== -1) streamCustomMilestones.splice(idx, 1);
+          renderStreamResults();
+        });
+        row.appendChild(removeBtn);
+      }
+
+      streamCalcResults.appendChild(row);
+    });
+  }
+
+  streamStartDate.addEventListener("change", renderStreamResults);
+  streamRefreshBtn.addEventListener("click", renderStreamResults);
+
+  streamAddBtn.addEventListener("click", () => {
+    const amount = parseInt(streamCustomDays.value, 10);
+    if (!amount || amount <= 0) return;
+
+    const unit = streamCustomUnit.value; // "days" | "weeks" | "months"
+    let milestone;
+    if (unit === "weeks"){
+      milestone = { label: `${amount}週間`, type: "days", value: amount * 7 };
+    } else if (unit === "months"){
+      milestone = { label: `${amount}ヶ月`, type: "months", value: amount };
+    } else {
+      milestone = { label: `${amount}日`, type: "days", value: amount };
+    }
+
+    streamCustomMilestones.push(milestone);
+    streamCustomDays.value = "";
+    renderStreamResults();
+  });
+
+  streamCustomDays.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") streamAddBtn.click();
+  });
+
+  streamResetBtn.addEventListener("click", () => {
+    streamStartDate.value = "";
+    streamCustomDays.value = "";
+    streamCustomUnit.value = "days";
+    streamCustomMilestones = [];
+    renderStreamResults();
+  });
+
+  streamCalcOpenBtn.addEventListener("click", () => {
+    siteMenuPanel.classList.remove("open");
+    streamCalcView.classList.add("open");
+  });
+  streamCalcBackBtn.addEventListener("click", () => {
+    streamCalcView.classList.remove("open");
+  });
+
+  renderStreamResults();
 
   // ---- カラーパレット（背景・文字色まで含めたフルテーマ切り替え） ----
   // ダーク系10色（1番目は現在のシンプルテーマそのまま）
