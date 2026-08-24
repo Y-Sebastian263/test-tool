@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Y++ &mdash; Japan Standard Time</title>
+<style>
+  :root{
+    --bg: #0b1f3a;
+    --bg2: #0e2a52;
+    --line: rgba(255,255,255,0.15);
+    --text: #ffffff;
+    --muted: #9fb3d1;
+    --accent: #4fa3ff;
+    --font: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; height:100%; }
+  body{
+    background: radial-gradient(circle at 50% -10%, var(--bg2), var(--bg) 60%);
+    color: var(--text);
+    font-family: var(--font);
+    display:flex; flex-direction:column; min-height:100vh;
+    transition: background .25s ease, color .25s ease;
+  }
+  header{
+    display:flex; align-items:center; gap:14px;
+    padding:18px 24px;
+    border-bottom:1px solid var(--line);
+  }
+  .logo-mark{
+    width:34px; height:34px; border-radius:50%;
+    background: conic-gradient(from 90deg, var(--accent), var(--bg2), var(--accent));
+    flex-shrink:0;
+  }
+  .org-name{ font-size:13px; line-height:1.4; color: var(--muted); }
+  .org-name strong{ color:var(--text); font-weight:600; display:block; font-size:14px; }
+
+  main{
+    flex:1;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:28px; padding:40px 16px;
+  }
+  h1{
+    font-size:15px; letter-spacing:0.3em; font-weight:400; color:var(--muted);
+    margin:0; text-transform:uppercase;
+  }
+  .clock{
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(52px, 12vw, 128px);
+    font-weight:700;
+    letter-spacing:0.03em;
+    display:flex; align-items:baseline; gap:2px;
+    text-shadow: 0 0 40px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+  .clock .colon{
+    font-weight:400; color:var(--accent); margin:0 4px;
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0.15; } }
+
+  .date-row{
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(18px, 3.5vw, 30px);
+    color: var(--muted);
+    letter-spacing:0.08em;
+  }
+  .date-row .youbi{ color: var(--text); }
+
+  .color-picker{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    margin-top:6px;
+  }
+  .color-toggle-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:12px;
+    letter-spacing:0.1em;
+    padding:8px 18px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background: transparent;
+    color: var(--muted);
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .color-toggle-btn:hover{
+    color:var(--text);
+    border-color:var(--accent);
+  }
+  .color-toggle-swatch{
+    width:14px; height:14px;
+    border-radius:50%;
+    background: var(--accent);
+    flex-shrink:0;
+    border:1px solid rgba(255,255,255,0.4);
+  }
+  .color-palette{
+    display:none;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+    max-width:460px;
+    padding:14px;
+    border:1px solid var(--line);
+    border-radius:16px;
+    background: color-mix(in srgb, var(--bg2) 60%, transparent);
+  }
+  .color-palette.open{ display:flex; }
+  .color-swatch{
+    width:30px; height:30px;
+    border-radius:50%;
+    border:2px solid transparent;
+    padding:0;
+    cursor:pointer;
+    position:relative;
+    transition: transform .15s ease, border-color .15s ease;
+  }
+  .color-swatch:hover{ transform:scale(1.12); }
+  .color-swatch.active{
+    border-color:#ffffff;
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+  }
+
+  .timer-order-wrap{
+    width:100%;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-start;
+    justify-content:center;
+    gap:32px;
+    margin-top:20px;
+    padding-top:28px;
+    border-top:1px solid var(--line);
+  }
+  .timer-section{
+    width:100%;
+    max-width:480px;
+    display:flex; flex-direction:column; align-items:center; gap:18px;
+  }
+  .timer-title{
+    font-size:12px; letter-spacing:0.25em; color:var(--muted);
+    text-transform:uppercase; margin:0;
+  }
+  .timer-display{
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(36px, 8vw, 64px);
+    font-weight:700;
+    letter-spacing:0.03em;
+  }
+  .timer-presets{
+    display:flex; gap:8px; flex-wrap:wrap; justify-content:center;
+  }
+  .timer-presets button{
+    color: var(--muted);
+    font-size:13px;
+    padding:6px 14px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background: transparent;
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .timer-presets button:hover, .timer-presets button.active{
+    color:var(--text);
+    border-color:var(--accent);
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+  .timer-custom{
+    display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:center;
+  }
+  .timer-custom input{
+    width:56px;
+    font-size:14px;
+    padding:6px 8px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background: transparent;
+    color: var(--text);
+    font-family: inherit;
+    text-align:center;
+  }
+  .timer-custom-sep{
+    color: var(--muted);
+    font-size:14px;
+  }
+  .timer-custom label{
+    font-size:13px; color:var(--muted);
+  }
+  .timer-custom button{
+    font-size:13px;
+    padding:6px 14px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background: transparent;
+    color: var(--muted);
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .timer-custom button:hover{
+    color:var(--text);
+    border-color:var(--accent);
+  }
+  .timer-controls{
+    display:flex; gap:10px;
+  }
+  .timer-controls button{
+    font-size:13px;
+    padding:8px 20px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background: transparent;
+    color: var(--text);
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .timer-controls button:hover{
+    border-color:var(--accent);
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+  .timer-controls button:disabled{
+    opacity:0.35;
+    cursor:not-allowed;
+  }
+  .timer-controls button.start{ border-color: var(--accent); color: var(--accent); }
+
+  .order-mode-btn{
+    font-size:12px;
+    letter-spacing:0.15em;
+    padding:8px 20px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background: transparent;
+    color: var(--muted);
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .order-mode-btn:hover{
+    color:var(--text);
+    border-color:var(--accent);
+  }
+  .order-mode-btn.active{
+    color:var(--text);
+    border-color:var(--accent);
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+
+  .mode-buttons{
+    display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
+  }
+
+  .obs-exit-btn{
+    display:none;
+    position:fixed;
+    top:16px; left:16px;
+    z-index:1000;
+    font-size:13px;
+    padding:8px 18px;
+    border:1px solid var(--accent);
+    border-radius:999px;
+    background: var(--bg);
+    color: var(--accent);
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .obs-exit-btn:hover{
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+
+  /* ---- OBSレイアウトモード ---- */
+  body.obs-mode{ overflow:hidden; }
+  body.obs-mode header,
+  body.obs-mode h1,
+  body.obs-mode .clock,
+  body.obs-mode .date-row,
+  body.obs-mode .color-picker,
+  body.obs-mode footer,
+  body.obs-mode .timer-title,
+  body.obs-mode .mode-buttons{
+    display:none;
+  }
+  body.obs-mode .obs-exit-btn{ display:block; }
+  body.obs-mode main{
+    padding:0;
+    gap:0;
+    height:100vh;
+  }
+  body.obs-mode .timer-order-wrap{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    width:min(100vw, 177.78vh);
+    height:min(100vh, 56.25vw);
+    max-width:none;
+    margin:0;
+    padding:0;
+    border:none;
+    gap:0;
+    flex-wrap:nowrap;
+  }
+  body.obs-mode .timer-section{
+    flex:0 0 35%;
+    max-width:none;
+    height:100%;
+    justify-content:center;
+    padding:8px;
+    border-right:1px solid var(--line);
+    gap: clamp(8px, 2vh, 20px);
+  }
+  body.obs-mode .timer-display{
+    font-size: clamp(64px, 9.5vw, 22vh);
+  }
+  body.obs-mode .order-panel{
+    flex:0 0 65%;
+    width:auto;
+    height:100%;
+    max-width:none;
+    aspect-ratio:auto;
+    border:none;
+    border-radius:0;
+    padding:12px 16px;
+    justify-content:center;
+    gap:10px;
+  }
+  body.obs-mode .order-panel.active{ display:flex; }
+  body.obs-mode .order-rest{
+    flex:0 0 auto;
+    max-height:60vh;
+    overflow-y:auto;
+    gap:10px;
+  }
+  body.obs-mode .order-label{
+    width: 20vh;
+    text-align:right;
+    white-space:nowrap;
+    overflow:visible;
+  }
+  body.obs-mode .order-row-now .order-label{ font-size: clamp(30px, 4.6vw, 8vh); }
+  body.obs-mode .order-row-now .order-input{ font-size: clamp(30px, 4.6vw, 8vh); }
+  body.obs-mode .order-row-next .order-label{ font-size: clamp(25px, 3.8vw, 6.2vh); }
+  body.obs-mode .order-row-next .order-input{ font-size: clamp(25px, 3.8vw, 6.2vh); }
+  body.obs-mode .order-row-sub .order-label{ font-size: clamp(19px, 2.6vw, 3.8vh); }
+  body.obs-mode .order-row-sub .order-input{ font-size: clamp(19px, 2.6vw, 3.8vh); }
+  body.obs-mode .order-complete-btn{
+    font-size: clamp(13px, 1.6vw, 2.4vh);
+    padding: clamp(5px,0.8vh,10px) clamp(10px,1.6vw,18px);
+  }
+
+  /* ---- モデレーターモード ---- */
+  body.moderator-mode{ overflow:hidden; }
+  body.moderator-mode header,
+  body.moderator-mode h1,
+  body.moderator-mode .clock,
+  body.moderator-mode .date-row,
+  body.moderator-mode .color-picker,
+  body.moderator-mode footer,
+  body.moderator-mode .timer-title,
+  body.moderator-mode .timer-section,
+  body.moderator-mode .mode-buttons{
+    display:none;
+  }
+  body.moderator-mode .obs-exit-btn{ display:block; }
+  body.moderator-mode main{
+    padding:0;
+    gap:0;
+    height:100vh;
+  }
+  body.moderator-mode .timer-order-wrap{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    width:min(92vw, 640px);
+    max-height:92vh;
+    margin:0;
+    padding:0;
+    border:none;
+    gap:0;
+    flex-wrap:nowrap;
+  }
+  body.moderator-mode .order-panel{
+    flex:1 1 100%;
+    width:100%;
+    height:auto;
+    max-height:92vh;
+    aspect-ratio:auto;
+    border:1px solid var(--line);
+    border-radius:20px;
+    background: color-mix(in srgb, var(--bg2) 70%, transparent);
+    padding:28px 32px;
+    justify-content:flex-start;
+    gap:16px;
+  }
+  body.moderator-mode .order-panel.active{ display:flex; }
+  body.moderator-mode .order-label{
+    width:64px;
+    white-space:nowrap;
+  }
+  body.moderator-mode .order-row-now .order-label,
+  body.moderator-mode .order-row-now .order-input{ font-size:30px; }
+  body.moderator-mode .order-row-next .order-label,
+  body.moderator-mode .order-row-next .order-input{ font-size:24px; }
+  body.moderator-mode .order-row-sub .order-label,
+  body.moderator-mode .order-row-sub .order-input{ font-size:19px; }
+  body.moderator-mode .order-input{
+    padding:8px 8px;
+  }
+  body.moderator-mode .order-complete-btn{
+    font-size:15px;
+    padding:9px 20px;
+  }
+  body.moderator-mode .order-rest{
+    flex:1;
+    gap:10px;
+    padding-right:4px;
+  }
+  body.moderator-mode .order-remove-btn{
+    width:28px; height:28px; font-size:15px;
+  }
+  body.moderator-mode .order-add-row{
+    gap:10px;
+    padding-top:14px;
+  }
+  body.moderator-mode .order-add-row input[type="text"],
+  body.moderator-mode .order-add-row select,
+  body.moderator-mode .order-add-row button{
+    font-size:15px;
+    padding:9px 14px;
+  }
+
+  .order-panel{
+    display:none;
+    flex-direction:column;
+    gap:10px;
+    width:min(480px, 100%);
+    aspect-ratio:16/9;
+    padding:20px 24px;
+    border:1px solid var(--line);
+    border-radius:16px;
+    background: color-mix(in srgb, var(--bg2) 60%, transparent);
+    overflow:hidden;
+  }
+  .order-panel.active{ display:flex; }
+
+  .order-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:nowrap;
+  }
+  .order-label{
+    flex-shrink:0;
+    font-weight:700;
+    color:var(--accent);
+    letter-spacing:0.05em;
+    width:58px;
+    text-align:right;
+    white-space:nowrap;
+    overflow:visible;
+  }
+  .order-row-now{ flex-shrink:0; }
+  .order-row-now .order-label{ font-size: clamp(18px, 3vw, 26px); }
+  .order-row-now .order-input{ font-size: clamp(18px, 3vw, 26px); font-weight:700; text-align:left; }
+
+  .order-row-next{ flex-shrink:0; }
+  .order-row-next .order-label{ font-size: clamp(15px, 2.4vw, 20px); }
+  .order-row-next .order-input{ font-size: clamp(15px, 2.4vw, 20px); font-weight:600; text-align:left; }
+
+  .order-complete-btn{
+    flex-shrink:0;
+    font-size:12px;
+    padding:6px 12px;
+    border:1px solid var(--accent);
+    border-radius:999px;
+    background: transparent;
+    color: var(--accent);
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .order-complete-btn:hover{
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+
+  .order-rest{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    flex:1;
+    overflow-y:auto;
+    min-height:0;
+  }
+  .order-row-sub .order-label{ font-size:13px; width:58px; text-align:right; color:var(--muted); flex-shrink:0; white-space:nowrap; }
+  .order-row-sub .order-input{ font-size:13px; padding:4px 8px; text-align:left; }
+  .order-empty-hint{
+    font-size:12px; color:var(--muted); text-align:center; margin:auto 0;
+  }
+
+  .order-remove-btn{
+    flex-shrink:0;
+    font-size:12px;
+    width:22px; height:22px;
+    border:1px solid var(--line);
+    border-radius:50%;
+    background: transparent;
+    color: var(--muted);
+    font-family: inherit;
+    cursor:pointer;
+    line-height:1;
+    display:flex; align-items:center; justify-content:center;
+    transition: all .15s ease;
+  }
+  .order-remove-btn:hover{
+    color:var(--text);
+    border-color:var(--accent);
+  }
+
+  .order-add-row{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    align-items:center;
+    flex-shrink:0;
+    padding-top:8px;
+    border-top:1px solid var(--line);
+  }
+  .order-add-row input[type="text"]{
+    flex:1;
+    min-width:80px;
+    font-size:13px;
+    padding:6px 8px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background: transparent;
+    color: var(--text);
+    font-family: inherit;
+  }
+  .order-add-row select{
+    font-size:12px;
+    padding:6px 8px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background: var(--bg2);
+    color: var(--text);
+    font-family: inherit;
+  }
+  .order-add-row button{
+    font-size:13px;
+    padding:6px 16px;
+    border:1px solid var(--accent);
+    border-radius:999px;
+    background: transparent;
+    color: var(--accent);
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .order-add-row button:hover{
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+
+  .comment-tools{
+    display:none;
+  }
+  body.moderator-mode .comment-tools{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    flex-shrink:0;
+    padding-top:14px;
+    margin-top:4px;
+    border-top:1px solid var(--line);
+  }
+  .comment-field{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .comment-field label{
+    flex-shrink:0;
+    width:64px;
+    font-size:13px;
+    color:var(--muted);
+  }
+  .comment-field input{
+    flex:1;
+    min-width:0;
+    font-size:14px;
+    padding:7px 10px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background: transparent;
+    color: var(--text);
+    font-family: inherit;
+  }
+  .comment-btn-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  #commentConvertBtn{
+    align-self:flex-start;
+    font-size:14px;
+    padding:8px 20px;
+    border:1px solid var(--accent);
+    border-radius:999px;
+    background: transparent;
+    color: var(--accent);
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  #commentConvertBtn:hover{
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+  #commentCopyBtn{
+    align-self:flex-start;
+    font-size:14px;
+    padding:8px 20px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background: transparent;
+    color: var(--muted);
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  #commentCopyBtn:hover{
+    color:var(--text);
+    border-color:var(--accent);
+  }
+  #commentRestoreBtn{
+    align-self:flex-start;
+    font-size:14px;
+    padding:8px 20px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background: transparent;
+    color: var(--muted);
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  #commentRestoreBtn:hover{
+    color:var(--text);
+    border-color:var(--accent);
+  }
+  #orderResetBtn{
+    align-self:flex-start;
+    font-size:14px;
+    padding:8px 20px;
+    border:1px solid rgba(220,90,90,0.5);
+    border-radius:999px;
+    background: transparent;
+    color: rgba(220,120,120,0.9);
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  #orderResetBtn:hover{
+    background: rgba(220,90,90,0.15);
+    border-color: rgba(220,90,90,0.8);
+  }
+
+  .restore-modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background: rgba(0,0,0,0.55);
+    z-index:2000;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  .restore-modal-overlay:not([hidden]){ display:flex; }
+  .restore-modal{
+    width:min(420px, 100%);
+    background: var(--bg2);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    color: var(--text);
+    font-family: var(--font);
+  }
+  .restore-modal-message{
+    margin:0;
+    font-size:14px;
+    line-height:1.6;
+  }
+  .restore-modal-textarea{
+    width:100%;
+    min-height:100px;
+    resize:vertical;
+    font-size:13px;
+    padding:10px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background: transparent;
+    color: var(--text);
+    font-family: inherit;
+    box-sizing:border-box;
+  }
+  .restore-modal-actions{
+    display:flex;
+    gap:10px;
+    justify-content:flex-end;
+  }
+  .restore-modal-yes{
+    font-size:14px;
+    padding:8px 22px;
+    border:1px solid var(--accent);
+    border-radius:999px;
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    color: var(--text);
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .restore-modal-yes:hover{
+    background: color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+  .restore-modal-no{
+    font-size:14px;
+    padding:8px 22px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background: transparent;
+    color: var(--muted);
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .restore-modal-no:hover{
+    color:var(--text);
+    border-color:var(--accent);
+  }
+
+  .comment-preview{
+    margin:0;
+    font-size:14px;
+    line-height:1.6;
+    color: var(--text);
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    background: color-mix(in srgb, var(--bg) 50%, transparent);
+    min-height:1.6em;
+    word-break: break-all;
+  }
+
+  .order-input{
+    flex:1;
+    min-width:0;
+    background: transparent;
+    border:none;
+    border-bottom:1px solid var(--line);
+    color: var(--text);
+    font-family: inherit;
+    padding:4px 6px;
+    outline:none;
+    text-align:right;
+    transition: border-color .15s ease;
+  }
+  .order-input:focus{ border-bottom-color: var(--accent); }
+
+  footer{
+    text-align:center; font-size:11px; color:var(--muted);
+    padding:16px; border-top:1px solid var(--line);
+  }
+</style>
+</head>
+<body>
+
+<button type="button" id="obsExitBtn" class="obs-exit-btn" hidden>レイアウトをもとに戻す</button>
+
+<div class="restore-modal-overlay" id="restoreModalOverlay" hidden>
+  <div class="restore-modal">
+    <p class="restore-modal-message">この文面から復元します。<br>本当によろしいですか？</p>
+    <textarea id="restoreModalText" class="restore-modal-textarea" placeholder="ここに文章を貼り付け（Ctrl+V / 長押しでペースト）"></textarea>
+    <div class="restore-modal-actions">
+      <button type="button" id="restoreModalYes" class="restore-modal-yes">はい</button>
+      <button type="button" id="restoreModalNo" class="restore-modal-no">いいえ</button>
+    </div>
+  </div>
+</div>
+
+<div class="restore-modal-overlay" id="resetModalOverlay" hidden>
+  <div class="restore-modal">
+    <p class="restore-modal-message">登録内容をすべて初期状態に戻します。<br>本当によろしいですか？</p>
+    <div class="restore-modal-actions">
+      <button type="button" id="resetModalYes" class="restore-modal-yes">はい</button>
+      <button type="button" id="resetModalNo" class="restore-modal-no">いいえ</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="logo-mark" aria-hidden="true"></div>
+  <div class="org-name">
+    <strong>Y++</strong>
+  </div>
+</header>
+
+<main>
+  <h1>Japan Standard Time</h1>
+
+  <div class="clock" id="clock">--<span class="colon">:</span>--<span class="colon">:</span>--</div>
+
+  <div class="date-row" id="dateRow">----/--/-- (-)</div>
+
+  <div class="color-picker" id="colorPicker">
+    <button type="button" id="colorToggleBtn" class="color-toggle-btn">
+      <span class="color-toggle-swatch" id="colorToggleSwatch"></span>
+      カラー変更
+    </button>
+    <div class="color-palette" id="colorPalette"></div>
+  </div>
+
+  <div class="timer-order-wrap">
+    <section class="timer-section">
+      <p class="timer-title">Timer</p>
+
+      <div class="timer-display" id="timerDisplay">00:00</div>
+
+      <div class="timer-presets" id="timerPresets">
+        <button type="button" data-seconds="60">1分</button>
+        <button type="button" data-seconds="180">3分</button>
+        <button type="button" data-seconds="300">5分</button>
+        <button type="button" data-seconds="600">10分</button>
+        <button type="button" data-seconds="1800">30分</button>
+        <button type="button" data-seconds="3600">1時間</button>
+      </div>
+
+      <div class="timer-custom">
+        <label for="customHours">自由入力</label>
+        <input type="number" id="customHours" min="0" max="99" placeholder="時">
+        <span class="timer-custom-sep">:</span>
+        <input type="number" id="customMinutes" min="0" max="59" placeholder="分">
+        <span class="timer-custom-sep">:</span>
+        <input type="number" id="customSeconds" min="0" max="59" placeholder="秒">
+        <button type="button" id="customSetBtn">設定</button>
+      </div>
+
+      <div class="timer-controls">
+        <button type="button" class="start" id="timerStartBtn">開始</button>
+        <button type="button" id="timerPauseBtn">一時停止</button>
+        <button type="button" id="timerStopBtn">終了</button>
+      </div>
+
+      <div class="mode-buttons">
+        <button type="button" id="orderModeBtn" class="order-mode-btn">順序整理</button>
+        <button type="button" id="obsLayoutBtn" class="order-mode-btn obs-layout-btn" hidden>OBSレイアウト</button>
+        <button type="button" id="moderatorModeBtn" class="order-mode-btn obs-layout-btn" hidden>モデレーターモード</button>
+      </div>
+    </section>
+
+    <section class="order-panel" id="orderPanel">
+      <div class="order-row order-row-now">
+        <span class="order-label">Now</span>
+        <input type="text" class="order-input" id="orderNowInput" placeholder="名前を入力">
+        <button type="button" id="orderCompleteBtn" class="order-complete-btn">完了</button>
+      </div>
+      <div class="order-row order-row-next">
+        <span class="order-label">Next</span>
+        <input type="text" class="order-input" id="orderNextInput" placeholder="名前を入力">
+      </div>
+
+      <div class="order-rest" id="orderRest"></div>
+
+      <div class="order-add-row">
+        <input type="text" id="orderAddName" placeholder="名前を入力">
+        <select id="orderAddPosition"></select>
+        <button type="button" id="orderAddBtn">Add</button>
+      </div>
+
+      <div class="comment-tools" id="commentTools">
+        <div class="comment-field">
+          <label for="commentTitle">表題</label>
+          <input type="text" id="commentTitle" value="凸待ち">
+        </div>
+        <div class="comment-field">
+          <label for="commentTrailing">末尾文章</label>
+          <input type="text" id="commentTrailing" value='凸してくれる方は&quot;ノ&quot;でお知らせください。'>
+        </div>
+        <div class="comment-btn-row">
+          <button type="button" id="commentConvertBtn">コメント変換</button>
+          <button type="button" id="commentCopyBtn">文章コピー</button>
+          <button type="button" id="commentRestoreBtn">文章から復元</button>
+          <button type="button" id="orderResetBtn">登録リセット</button>
+        </div>
+        <p class="comment-preview" id="commentPreview"></p>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  Copyright &copy; Y++ All Rights Reserved.
+</footer>
+
+<script>
+  const weekdays = ["日","月","火","水","木","金","土"];
+  const clockEl = document.getElementById("clock");
+  const dateEl = document.getElementById("dateRow");
+
+  function pad(n){ return String(n).padStart(2, "0"); }
+
+  function tick(){
+    const now = new Date();
+    const h = pad(now.getHours());
+    const m = pad(now.getMinutes());
+    const s = pad(now.getSeconds());
+    clockEl.innerHTML = `${h}<span class="colon">:</span>${m}<span class="colon">:</span>${s}`;
+
+    const y = now.getFullYear();
+    const mo = pad(now.getMonth() + 1);
+    const d = pad(now.getDate());
+    const w = weekdays[now.getDay()];
+    dateEl.innerHTML = `${y}/${mo}/${d} (<span class="youbi">${w}</span>)`;
+  }
+
+  tick();
+  setInterval(tick, 1000);
+
+  const body = document.body;
+
+  // ---- カラーパレット（背景・文字色まで含めたフルテーマ切り替え） ----
+  const COLOR_THEMES = [
+    // 1: シンプル（デフォルト・現状のまま）
+    { bg:"#0b1f3a", bg2:"#0e2a52", line:"rgba(255,255,255,0.15)", text:"#ffffff", muted:"#9fb3d1", accent:"#4fa3ff" },
+    // 2: デジタルグリーン（ダーク・ネオン）
+    { bg:"#050705", bg2:"#0c150c", line:"rgba(80,255,120,0.2)",  text:"#d8ffe0", muted:"#4fae64", accent:"#39ff6a" },
+    // 3: デジタルアンバー（ダーク）
+    { bg:"#120a04", bg2:"#201203", line:"rgba(255,170,60,0.25)", text:"#ffe9c7", muted:"#c98a3a", accent:"#ff9d2e" },
+    // 4: NICTネイビー（ライト）
+    { bg:"#f4f6fa", bg2:"#ffffff", line:"rgba(15,40,90,0.15)",   text:"#10254a", muted:"#5b6f92", accent:"#1c4f8f" },
+    // 5: NICTレッド（ライト）
+    { bg:"#fafafa", bg2:"#ffffff", line:"rgba(180,30,30,0.15)",  text:"#2a1414", muted:"#8a6060", accent:"#c62828" },
+    // 6: ディープパープル（ダーク）
+    { bg:"#160a24", bg2:"#20103a", line:"rgba(170,120,255,0.2)", text:"#ece3ff", muted:"#9d84c9", accent:"#a566ff" },
+    // 7: ローズピンク（ダーク）
+    { bg:"#210a16", bg2:"#33101f", line:"rgba(255,120,170,0.2)", text:"#ffe2ec", muted:"#c98aa4", accent:"#ff5c8a" },
+    // 8: オーシャンティール（ダーク）
+    { bg:"#03191c", bg2:"#06272b", line:"rgba(60,220,210,0.2)",  text:"#d8fbf7", muted:"#4fae9f", accent:"#26d6c2" },
+    // 9: サンセットオレンジ（ダーク）
+    { bg:"#210f04", bg2:"#331806", line:"rgba(255,150,60,0.22)", text:"#ffe6cf", muted:"#c9905a", accent:"#ff7f2a" },
+    // 10: ゴールドイエロー（ダーク）
+    { bg:"#1c1604", bg2:"#2b2107", line:"rgba(255,214,60,0.22)", text:"#fff6d8", muted:"#c9ab4f", accent:"#ffcc33" },
+    // 11: インディゴナイト（ダーク）
+    { bg:"#080b24", bg2:"#0e1338", line:"rgba(110,130,255,0.2)", text:"#e2e6ff", muted:"#7d8ac9", accent:"#5c72ff" },
+    // 12: クリムゾン（ダーク）
+    { bg:"#1c0508", bg2:"#2b0a0e", line:"rgba(255,90,90,0.22)",  text:"#ffdada", muted:"#c96a6a", accent:"#ff4d4d" },
+    // 13: ミントライト
+    { bg:"#f2faf6", bg2:"#ffffff", line:"rgba(20,140,90,0.15)",  text:"#0f3324", muted:"#5c9a7d", accent:"#1f9d64" },
+    // 14: ラベンダーライト
+    { bg:"#f6f3fb", bg2:"#ffffff", line:"rgba(120,80,200,0.15)", text:"#2c2140", muted:"#8a7aad", accent:"#7c4fd6" },
+    // 15: ピーチライト
+    { bg:"#fdf5ee", bg2:"#ffffff", line:"rgba(220,120,50,0.16)", text:"#3a2414", muted:"#af8567", accent:"#e07a30" },
+    // 16: スカイライト
+    { bg:"#f0f7fc", bg2:"#ffffff", line:"rgba(30,120,190,0.16)", text:"#0f2c40", muted:"#5f8aa8", accent:"#1c7fc4" },
+    // 17: チェリーライト
+    { bg:"#fdf2f4", bg2:"#ffffff", line:"rgba(210,50,90,0.16)",  text:"#3a1420", muted:"#af6d80", accent:"#d6336c" },
+    // 18: ハニーライト
+    { bg:"#fdf8ea", bg2:"#ffffff", line:"rgba(200,150,20,0.18)", text:"#3a2f0f", muted:"#af9a5f", accent:"#d6a015" },
+    // 19: ミッドナイトモノ（純ダーク）
+    { bg:"#000000", bg2:"#111111", line:"rgba(255,255,255,0.15)",text:"#ffffff", muted:"#9a9a9a", accent:"#ffffff" },
+    // 20: ペーパーモノ（純ライト）
+    { bg:"#ffffff", bg2:"#f7f7f7", line:"rgba(0,0,0,0.12)",      text:"#111111", muted:"#777777", accent:"#111111" }
+  ];
+
+  const colorPicker = document.getElementById("colorPicker");
+  const colorToggleBtn = document.getElementById("colorToggleBtn");
+  const colorToggleSwatch = document.getElementById("colorToggleSwatch");
+  const colorPalette = document.getElementById("colorPalette");
+  const rootStyle = document.documentElement.style;
+
+  function applyColorTheme(theme){
+    rootStyle.setProperty("--bg", theme.bg);
+    rootStyle.setProperty("--bg2", theme.bg2);
+    rootStyle.setProperty("--line", theme.line);
+    rootStyle.setProperty("--text", theme.text);
+    rootStyle.setProperty("--muted", theme.muted);
+    rootStyle.setProperty("--accent", theme.accent);
+    colorToggleSwatch.style.background = theme.accent;
+  }
+
+  COLOR_THEMES.forEach((theme, i) => {
+    const swatch = document.createElement("button");
+    swatch.type = "button";
+    swatch.className = "color-swatch";
+    swatch.style.background = theme.accent;
+    swatch.setAttribute("aria-label", `カラー${i + 1}`);
+    if (i === 0) swatch.classList.add("active");
+    swatch.addEventListener("click", () => {
+      applyColorTheme(theme);
+      colorPalette.querySelectorAll(".color-swatch").forEach(s => s.classList.remove("active"));
+      swatch.classList.add("active");
+    });
+    colorPalette.appendChild(swatch);
+  });
+
+  colorToggleBtn.addEventListener("click", () => {
+    colorPalette.classList.toggle("open");
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!colorPicker.contains(e.target)){
+      colorPalette.classList.remove("open");
+    }
+  });
+
+  // ---- タイマー ----
+  const timerDisplay = document.getElementById("timerDisplay");
+  const timerPresets = document.getElementById("timerPresets");
+  const customHoursInput = document.getElementById("customHours");
+  const customMinutesInput = document.getElementById("customMinutes");
+  const customSecondsInput = document.getElementById("customSeconds");
+  const customSetBtn = document.getElementById("customSetBtn");
+  const startBtn = document.getElementById("timerStartBtn");
+  const pauseBtn = document.getElementById("timerPauseBtn");
+  const stopBtn = document.getElementById("timerStopBtn");
+
+  let totalSeconds = 0;
+  let remainingSeconds = 0;
+  let timerInterval = null;
+  let isPaused = false;
+
+  function formatTime(sec){
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    if (h > 0){
+      return `${pad(h)}:${pad(m)}:${pad(s)}`;
+    }
+    return `${pad(m)}:${pad(s)}`;
+  }
+
+  function renderTimer(){
+    timerDisplay.textContent = formatTime(remainingSeconds);
+  }
+
+  function setDuration(seconds){
+    stopTimer();
+    totalSeconds = seconds;
+    remainingSeconds = seconds;
+    renderTimer();
+  }
+
+  function startTimer(){
+    if (remainingSeconds <= 0) return;
+    if (timerInterval) return;
+
+    isPaused = false;
+
+    timerInterval = setInterval(() => {
+      if (remainingSeconds <= 0){
+        clearInterval(timerInterval);
+        timerInterval = null;
+        return;
+      }
+      remainingSeconds--;
+      renderTimer();
+    }, 1000);
+  }
+
+  function pauseTimer(){
+    if (!timerInterval) return;
+    clearInterval(timerInterval);
+    timerInterval = null;
+    isPaused = true;
+  }
+
+  function stopTimer(){
+    if (timerInterval){
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    isPaused = false;
+    remainingSeconds = totalSeconds;
+    renderTimer();
+  }
+
+  timerPresets.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-seconds]");
+    if (!btn) return;
+
+    timerPresets.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    setDuration(parseInt(btn.dataset.seconds, 10));
+  });
+
+  customSetBtn.addEventListener("click", () => {
+    const h = parseInt(customHoursInput.value, 10) || 0;
+    const m = parseInt(customMinutesInput.value, 10) || 0;
+    const s = parseInt(customSecondsInput.value, 10) || 0;
+    const total = h * 3600 + m * 60 + s;
+    if (total <= 0) return;
+
+    timerPresets.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+    setDuration(total);
+  });
+
+  startBtn.addEventListener("click", startTimer);
+  pauseBtn.addEventListener("click", pauseTimer);
+  stopBtn.addEventListener("click", stopTimer);
+
+  renderTimer();
+
+  // ---- 順序整理モード ----
+  const orderModeBtn = document.getElementById("orderModeBtn");
+  const orderPanel = document.getElementById("orderPanel");
+  const orderNowInput = document.getElementById("orderNowInput");
+  const orderNextInput = document.getElementById("orderNextInput");
+  const orderRest = document.getElementById("orderRest");
+  const orderAddName = document.getElementById("orderAddName");
+  const orderAddPosition = document.getElementById("orderAddPosition");
+  const orderAddBtn = document.getElementById("orderAddBtn");
+  const orderCompleteBtn = document.getElementById("orderCompleteBtn");
+
+  // queue[0] = NOW, queue[1] = NEXT, queue[2以降] = 3番目以降（Addで追加）
+  let orderQueue = ["", ""];
+
+  function compactOrderQueue(){
+    // 空白の枠を詰めて、名前が入っているものだけを前に寄せる
+    orderQueue = orderQueue.filter(name => name && name.trim() !== "");
+    while (orderQueue.length < 2) orderQueue.push("");
+  }
+
+  function renderOrderQueue(){
+    compactOrderQueue();
+
+    orderNowInput.value = orderQueue[0] || "";
+    orderNextInput.value = orderQueue[1] || "";
+
+    const rest = orderQueue.slice(2);
+    orderRest.innerHTML = "";
+
+    if (rest.length === 0){
+      const hint = document.createElement("p");
+      hint.className = "order-empty-hint";
+      hint.textContent = "Addで待ち順を追加できます";
+      orderRest.appendChild(hint);
+    } else {
+      rest.forEach((name, i) => {
+        const row = document.createElement("div");
+        row.className = "order-row order-row-sub";
+
+        const label = document.createElement("span");
+        label.className = "order-label";
+        label.textContent = String(i + 3);
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "order-input";
+        input.placeholder = "名前を入力";
+        input.value = name;
+        input.addEventListener("input", () => {
+          orderQueue[i + 2] = input.value;
+        });
+        input.addEventListener("blur", () => {
+          renderOrderQueue();
+        });
+
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.className = "order-remove-btn";
+        removeBtn.textContent = "×";
+        removeBtn.addEventListener("click", () => {
+          orderQueue.splice(i + 2, 1);
+          renderOrderQueue();
+        });
+
+        row.appendChild(label);
+        row.appendChild(input);
+        row.appendChild(removeBtn);
+        orderRest.appendChild(row);
+      });
+    }
+
+    refreshOrderPositionOptions();
+  }
+
+  function refreshOrderPositionOptions(){
+    orderAddPosition.innerHTML = "";
+
+    for (let idx = 0; idx <= orderQueue.length; idx++){
+      const opt = document.createElement("option");
+      opt.value = String(idx);
+      if (idx === 0){
+        opt.textContent = "Nowに割り込み";
+      } else if (idx === 1){
+        opt.textContent = "Nextに割り込み";
+      } else if (idx === orderQueue.length){
+        opt.textContent = `末尾に追加（${idx + 1}番目）`;
+      } else {
+        opt.textContent = `${idx + 1}番目に割り込み`;
+      }
+      orderAddPosition.appendChild(opt);
+    }
+
+    // 常に「末尾」をデフォルト選択にする
+    orderAddPosition.value = String(orderQueue.length);
+  }
+
+  orderNowInput.addEventListener("input", () => {
+    orderQueue[0] = orderNowInput.value;
+  });
+  orderNowInput.addEventListener("blur", () => {
+    renderOrderQueue();
+  });
+  orderNextInput.addEventListener("input", () => {
+    orderQueue[1] = orderNextInput.value;
+  });
+  orderNextInput.addEventListener("blur", () => {
+    renderOrderQueue();
+  });
+
+  orderAddBtn.addEventListener("click", () => {
+    const name = orderAddName.value.trim();
+    if (!name) return;
+
+    const position = parseInt(orderAddPosition.value, 10);
+    orderQueue.splice(position, 0, name);
+
+    orderAddName.value = "";
+    renderOrderQueue();
+  });
+
+  orderAddName.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") orderAddBtn.click();
+  });
+
+  orderCompleteBtn.addEventListener("click", () => {
+    orderQueue.shift();
+    if (orderQueue.length < 2) orderQueue.push("");
+    renderOrderQueue();
+  });
+
+  // ---- コメント変換（モデレーターモード） ----
+  const commentTitle = document.getElementById("commentTitle");
+  const commentTrailing = document.getElementById("commentTrailing");
+  const commentConvertBtn = document.getElementById("commentConvertBtn");
+  const commentCopyBtn = document.getElementById("commentCopyBtn");
+  const commentPreview = document.getElementById("commentPreview");
+
+  function buildCommentText(){
+    const title = commentTitle.value.trim();
+    const trailing = commentTrailing.value;
+
+    const entries = orderQueue
+      .map((name, i) => ({ name, i }))
+      .filter(e => e.name && e.name.trim() !== "");
+
+    const chainParts = entries.map(e => {
+      const label = e.i === 0 ? "Now" : e.i === 1 ? "Next" : String(e.i + 1);
+      return `${label} ${e.name}`;
+    });
+    const chain = chainParts.join(" ▶ ");
+
+    return `【${title}】${chain}${chain ? " " : ""}${trailing}`;
+  }
+
+  // PC・スマホどちらでも動くよう、Clipboard APIが使えない/失敗する場合は
+  // textarea + execCommand('copy') にフォールバックする
+  function copyTextToClipboard(text){
+    return new Promise((resolve, reject) => {
+      if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext){
+        navigator.clipboard.writeText(text).then(resolve).catch(() => {
+          if (fallbackCopy(text)) resolve(); else reject();
+        });
+      } else {
+        if (fallbackCopy(text)) resolve(); else reject();
+      }
+    });
+  }
+
+  function fallbackCopy(text){
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "0";
+    ta.style.left = "-9999px";
+    ta.style.fontSize = "16px"; // iOSでズームされないように
+    document.body.appendChild(ta);
+
+    const selection = document.getSelection();
+    const originalRange = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+
+    let success = false;
+    try{
+      success = document.execCommand("copy");
+    } catch (e){
+      success = false;
+    }
+
+    document.body.removeChild(ta);
+    if (originalRange){
+      selection.removeAllRanges();
+      selection.addRange(originalRange);
+    }
+    return success;
+  }
+
+  function flashCopyFeedback(btn, label){
+    const original = btn.textContent;
+    btn.textContent = label;
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.disabled = false;
+    }, 1200);
+  }
+
+  commentConvertBtn.addEventListener("click", () => {
+    const text = buildCommentText();
+    commentPreview.textContent = text;
+
+    copyTextToClipboard(text)
+      .then(() => flashCopyFeedback(commentConvertBtn, "コピーしました"))
+      .catch(() => flashCopyFeedback(commentConvertBtn, "コピー失敗"));
+  });
+
+  commentCopyBtn.addEventListener("click", () => {
+    const text = commentPreview.textContent || buildCommentText();
+    commentPreview.textContent = text;
+
+    copyTextToClipboard(text)
+      .then(() => flashCopyFeedback(commentCopyBtn, "コピーしました"))
+      .catch(() => flashCopyFeedback(commentCopyBtn, "コピー失敗"));
+  });
+
+  // ---- 文章から復元 ----
+  const commentRestoreBtn = document.getElementById("commentRestoreBtn");
+  const restoreModalOverlay = document.getElementById("restoreModalOverlay");
+  const restoreModalText = document.getElementById("restoreModalText");
+  const restoreModalYes = document.getElementById("restoreModalYes");
+  const restoreModalNo = document.getElementById("restoreModalNo");
+
+  // 「【表題】Now 名前 ▶ Next 名前 ▶ 3 名前 … 末尾文章」を分解する
+  function parseCommentText(text){
+    const titleMatch = text.match(/^【([\s\S]*?)】([\s\S]*)$/);
+    const title = titleMatch ? titleMatch[1] : "";
+    let rest = titleMatch ? titleMatch[2] : text;
+    rest = rest.replace(/^\s+/, "");
+
+    if (rest === ""){
+      return { title, entries: [], trailing: "" };
+    }
+
+    const segments = rest.split("▶").map(s => s.trim()).filter(s => s !== "");
+    const labelPattern = /^(Now|Next|\d+)\s+([\s\S]*)$/;
+
+    if (segments.length === 0 || !labelPattern.test(segments[0])){
+      // ラベル付きの並びが見つからない場合は末尾文章のみとみなす
+      return { title, entries: [], trailing: rest };
+    }
+
+    const entries = [];
+    let trailing = "";
+
+    segments.forEach((seg, idx) => {
+      const m = seg.match(labelPattern);
+      if (!m){
+        trailing = trailing ? `${trailing} ${seg}` : seg;
+        return;
+      }
+      const value = m[2];
+
+      if (idx === segments.length - 1){
+        // 最後の項目だけ「名前 末尾文章」が連結されている可能性があるため分離する
+        const parts = value.split(/\s+/);
+        const name = parts.shift() || "";
+        trailing = parts.join(" ");
+        entries.push(name);
+      } else {
+        entries.push(value.trim());
+      }
+    });
+
+    return { title, entries, trailing };
+  }
+
+  function openRestoreModal(prefillText){
+    restoreModalText.value = prefillText || "";
+    restoreModalOverlay.hidden = false;
+    restoreModalText.focus();
+    restoreModalText.select();
+  }
+
+  function closeRestoreModal(){
+    restoreModalOverlay.hidden = true;
+  }
+
+  commentRestoreBtn.addEventListener("click", () => {
+    if (navigator.clipboard && navigator.clipboard.readText && window.isSecureContext){
+      navigator.clipboard.readText()
+        .then(text => openRestoreModal(text))
+        .catch(() => openRestoreModal(""));
+    } else {
+      // クリップボード読み取りAPIが使えない環境ではテキストエリアに手動で貼り付けてもらう
+      openRestoreModal("");
+    }
+  });
+
+  restoreModalNo.addEventListener("click", closeRestoreModal);
+  restoreModalOverlay.addEventListener("click", (e) => {
+    if (e.target === restoreModalOverlay) closeRestoreModal();
+  });
+
+  restoreModalYes.addEventListener("click", () => {
+    const text = restoreModalText.value;
+    const parsed = parseCommentText(text);
+
+    if (parsed.title) commentTitle.value = parsed.title;
+    if (parsed.trailing) commentTrailing.value = parsed.trailing;
+
+    orderQueue = parsed.entries.length > 0 ? parsed.entries.slice() : ["", ""];
+    renderOrderQueue();
+
+    closeRestoreModal();
+  });
+
+  // ---- 登録リセット ----
+  const orderResetBtn = document.getElementById("orderResetBtn");
+  const resetModalOverlay = document.getElementById("resetModalOverlay");
+  const resetModalYes = document.getElementById("resetModalYes");
+  const resetModalNo = document.getElementById("resetModalNo");
+  const DEFAULT_COMMENT_TITLE = "凸待ち";
+  const DEFAULT_COMMENT_TRAILING = '凸してくれる方は"ノ"でお知らせください。';
+
+  function openResetModal(){
+    resetModalOverlay.hidden = false;
+  }
+  function closeResetModal(){
+    resetModalOverlay.hidden = true;
+  }
+
+  orderResetBtn.addEventListener("click", openResetModal);
+  resetModalNo.addEventListener("click", closeResetModal);
+  resetModalOverlay.addEventListener("click", (e) => {
+    if (e.target === resetModalOverlay) closeResetModal();
+  });
+
+  resetModalYes.addEventListener("click", () => {
+    orderQueue = ["", ""];
+    renderOrderQueue();
+
+    commentTitle.value = DEFAULT_COMMENT_TITLE;
+    commentTrailing.value = DEFAULT_COMMENT_TRAILING;
+    commentPreview.textContent = "";
+
+    closeResetModal();
+  });
+
+  orderModeBtn.addEventListener("click", () => {
+    const isActive = orderPanel.classList.toggle("active");
+    orderModeBtn.classList.toggle("active", isActive);
+    obsLayoutBtn.hidden = !isActive;
+    moderatorModeBtn.hidden = !isActive;
+    if (!isActive) exitSpecialMode();
+  });
+
+  // ---- OBSレイアウトモード / モデレーターモード ----
+  const obsLayoutBtn = document.getElementById("obsLayoutBtn");
+  const moderatorModeBtn = document.getElementById("moderatorModeBtn");
+  const obsExitBtn = document.getElementById("obsExitBtn");
+
+  function enterObsMode(){
+    document.body.classList.remove("moderator-mode");
+    document.body.classList.add("obs-mode");
+  }
+  function enterModeratorMode(){
+    document.body.classList.remove("obs-mode");
+    document.body.classList.add("moderator-mode");
+  }
+  function exitSpecialMode(){
+    document.body.classList.remove("obs-mode", "moderator-mode");
+  }
+
+  obsLayoutBtn.addEventListener("click", enterObsMode);
+  moderatorModeBtn.addEventListener("click", enterModeratorMode);
+  obsExitBtn.addEventListener("click", exitSpecialMode);
+
+  renderOrderQueue();
+</script>
+
+</body>
+</html>
