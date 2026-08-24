@@ -103,18 +103,36 @@
   }
   .color-palette{
     display:none;
-    gap:10px;
-    flex-wrap:wrap;
-    justify-content:center;
-    max-width:460px;
+    flex-direction:column;
+    gap:12px;
+    width:min(460px, 92vw);
     padding:14px;
     border:1px solid var(--line);
     border-radius:16px;
     background: color-mix(in srgb, var(--bg2) 60%, transparent);
   }
   .color-palette.open{ display:flex; }
+  .color-row-group{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .color-row-label{
+    font-size:10px;
+    letter-spacing:0.15em;
+    color:var(--muted);
+    text-transform:uppercase;
+    margin:0;
+    padding-left:2px;
+  }
+  .color-row{
+    display:grid;
+    grid-template-columns:repeat(10, 1fr);
+    gap:6px;
+  }
   .color-swatch{
-    width:30px; height:30px;
+    width:100%;
+    aspect-ratio:1/1;
     border-radius:50%;
     border:2px solid transparent;
     padding:0;
@@ -278,6 +296,81 @@
     background: color-mix(in srgb, var(--accent) 15%, transparent);
   }
 
+  /* ---- header内メニュー ---- */
+  .site-menu{
+    position:relative;
+    margin-left:auto;
+  }
+  .site-menu-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    letter-spacing:0.05em;
+    padding:8px 16px;
+    border:1px solid var(--line);
+    border-radius:999px;
+    background: var(--bg);
+    color: var(--muted);
+    font-family: inherit;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .site-menu-btn:hover{
+    color:var(--text);
+    border-color:var(--accent);
+  }
+  .site-menu-btn .site-menu-icon{
+    font-size:14px;
+    line-height:1;
+  }
+  .site-menu-panel{
+    display:none;
+    flex-direction:column;
+    gap:14px;
+    position:absolute;
+    top:calc(100% + 8px);
+    right:0;
+    padding:14px;
+    width:240px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    background: var(--bg2);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+    z-index:1500;
+  }
+  .site-menu-panel.open{ display:flex; }
+  .site-menu-section{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .site-menu-heading{
+    margin:0 0 2px 0;
+    font-size:11px;
+    letter-spacing:0.15em;
+    color:var(--accent);
+    text-transform:uppercase;
+  }
+  .site-menu-panel a{
+    display:block;
+    font-size:13px;
+    color:var(--text);
+    text-decoration:none;
+    padding:6px 8px;
+    border-radius:8px;
+    transition: background .15s ease;
+  }
+  .site-menu-panel a:hover{
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+  }
+  .site-menu-divider{
+    height:1px;
+    background:var(--line);
+    border:none;
+    margin:0;
+  }
+
   /* ---- OBSレイアウトモード ---- */
   body.obs-mode{ overflow:hidden; }
   body.obs-mode header,
@@ -285,6 +378,7 @@
   body.obs-mode .clock,
   body.obs-mode .date-row,
   body.obs-mode .color-picker,
+  body.obs-mode .site-menu,
   body.obs-mode footer,
   body.obs-mode .timer-title,
   body.obs-mode .mode-buttons{
@@ -365,6 +459,7 @@
   body.moderator-mode .clock,
   body.moderator-mode .date-row,
   body.moderator-mode .color-picker,
+  body.moderator-mode .site-menu,
   body.moderator-mode footer,
   body.moderator-mode .timer-title,
   body.moderator-mode .timer-section,
@@ -814,6 +909,33 @@
   <div class="org-name">
     <strong>Y++</strong>
   </div>
+
+  <div class="site-menu" id="siteMenu">
+    <button type="button" id="siteMenuBtn" class="site-menu-btn">
+      <span class="site-menu-icon">&#9776;</span>メニュー
+    </button>
+    <div class="site-menu-panel" id="siteMenuPanel">
+      <div class="site-menu-section">
+        <p class="site-menu-heading">リンク</p>
+        <a href="https://reality.app/login" target="_blank" rel="noopener noreferrer">REALITY公式サイト</a>
+        <a href="https://discord.com/" target="_blank" rel="noopener noreferrer">Discord</a>
+        <a href="https://html5.plicy.net/GamePlay/155561" target="_blank" rel="noopener noreferrer">漢字でGO！</a>
+      </div>
+      <hr class="site-menu-divider">
+      <div class="site-menu-section">
+        <p class="site-menu-heading">Windows PC 便利ツール</p>
+        <a href="https://apps.microsoft.com/detail/9nblggh516xp?hl=ja-JP&amp;gl=JP" target="_blank" rel="noopener noreferrer">EarTrumpet：音量制御アプリ</a>
+        <a href="https://apps.microsoft.com/detail/9nw33j738bl0?hl=ja-JP&amp;gl=JP" target="_blank" rel="noopener noreferrer">Monitorian：マルチモニターの明るさを簡単調整</a>
+      </div>
+      <hr class="site-menu-divider">
+      <div class="site-menu-section">
+        <p class="site-menu-heading">ダウンロード</p>
+        <a href="https://obsproject.com/ja/download" target="_blank" rel="noopener noreferrer">OBS Studio</a>
+        <a href="https://letsview.com/jp/" target="_blank" rel="noopener noreferrer">Let's View</a>
+        <a href="https://syncroom.yamaha.com/v2/play/dl/" target="_blank" rel="noopener noreferrer">SYNCROOM2</a>
+      </div>
+    </div>
+  </div>
 </header>
 
 <main>
@@ -939,48 +1061,54 @@
 
   const body = document.body;
 
+  // ---- 左上メニュー ----
+  const siteMenu = document.getElementById("siteMenu");
+  const siteMenuBtn = document.getElementById("siteMenuBtn");
+  const siteMenuPanel = document.getElementById("siteMenuPanel");
+
+  siteMenuBtn.addEventListener("click", () => {
+    siteMenuPanel.classList.toggle("open");
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!siteMenu.contains(e.target)){
+      siteMenuPanel.classList.remove("open");
+    }
+  });
+
+  siteMenuPanel.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", () => {
+      siteMenuPanel.classList.remove("open");
+    });
+  });
+
   // ---- カラーパレット（背景・文字色まで含めたフルテーマ切り替え） ----
-  const COLOR_THEMES = [
-    // 1: シンプル（デフォルト・現状のまま）
-    { bg:"#0b1f3a", bg2:"#0e2a52", line:"rgba(255,255,255,0.15)", text:"#ffffff", muted:"#9fb3d1", accent:"#4fa3ff" },
-    // 2: デジタルグリーン（ダーク・ネオン）
-    { bg:"#050705", bg2:"#0c150c", line:"rgba(80,255,120,0.2)",  text:"#d8ffe0", muted:"#4fae64", accent:"#39ff6a" },
-    // 3: デジタルアンバー（ダーク）
-    { bg:"#120a04", bg2:"#201203", line:"rgba(255,170,60,0.25)", text:"#ffe9c7", muted:"#c98a3a", accent:"#ff9d2e" },
-    // 4: NICTネイビー（ライト）
-    { bg:"#f4f6fa", bg2:"#ffffff", line:"rgba(15,40,90,0.15)",   text:"#10254a", muted:"#5b6f92", accent:"#1c4f8f" },
-    // 5: NICTレッド（ライト）
-    { bg:"#fafafa", bg2:"#ffffff", line:"rgba(180,30,30,0.15)",  text:"#2a1414", muted:"#8a6060", accent:"#c62828" },
-    // 6: ディープパープル（ダーク）
-    { bg:"#160a24", bg2:"#20103a", line:"rgba(170,120,255,0.2)", text:"#ece3ff", muted:"#9d84c9", accent:"#a566ff" },
-    // 7: ローズピンク（ダーク）
-    { bg:"#210a16", bg2:"#33101f", line:"rgba(255,120,170,0.2)", text:"#ffe2ec", muted:"#c98aa4", accent:"#ff5c8a" },
-    // 8: オーシャンティール（ダーク）
-    { bg:"#03191c", bg2:"#06272b", line:"rgba(60,220,210,0.2)",  text:"#d8fbf7", muted:"#4fae9f", accent:"#26d6c2" },
-    // 9: サンセットオレンジ（ダーク）
-    { bg:"#210f04", bg2:"#331806", line:"rgba(255,150,60,0.22)", text:"#ffe6cf", muted:"#c9905a", accent:"#ff7f2a" },
-    // 10: ゴールドイエロー（ダーク）
-    { bg:"#1c1604", bg2:"#2b2107", line:"rgba(255,214,60,0.22)", text:"#fff6d8", muted:"#c9ab4f", accent:"#ffcc33" },
-    // 11: インディゴナイト（ダーク）
-    { bg:"#080b24", bg2:"#0e1338", line:"rgba(110,130,255,0.2)", text:"#e2e6ff", muted:"#7d8ac9", accent:"#5c72ff" },
-    // 12: クリムゾン（ダーク）
-    { bg:"#1c0508", bg2:"#2b0a0e", line:"rgba(255,90,90,0.22)",  text:"#ffdada", muted:"#c96a6a", accent:"#ff4d4d" },
-    // 13: ミントライト
-    { bg:"#f2faf6", bg2:"#ffffff", line:"rgba(20,140,90,0.15)",  text:"#0f3324", muted:"#5c9a7d", accent:"#1f9d64" },
-    // 14: ラベンダーライト
-    { bg:"#f6f3fb", bg2:"#ffffff", line:"rgba(120,80,200,0.15)", text:"#2c2140", muted:"#8a7aad", accent:"#7c4fd6" },
-    // 15: ピーチライト
-    { bg:"#fdf5ee", bg2:"#ffffff", line:"rgba(220,120,50,0.16)", text:"#3a2414", muted:"#af8567", accent:"#e07a30" },
-    // 16: スカイライト
-    { bg:"#f0f7fc", bg2:"#ffffff", line:"rgba(30,120,190,0.16)", text:"#0f2c40", muted:"#5f8aa8", accent:"#1c7fc4" },
-    // 17: チェリーライト
-    { bg:"#fdf2f4", bg2:"#ffffff", line:"rgba(210,50,90,0.16)",  text:"#3a1420", muted:"#af6d80", accent:"#d6336c" },
-    // 18: ハニーライト
-    { bg:"#fdf8ea", bg2:"#ffffff", line:"rgba(200,150,20,0.18)", text:"#3a2f0f", muted:"#af9a5f", accent:"#d6a015" },
-    // 19: ミッドナイトモノ（純ダーク）
-    { bg:"#000000", bg2:"#111111", line:"rgba(255,255,255,0.15)",text:"#ffffff", muted:"#9a9a9a", accent:"#ffffff" },
-    // 20: ペーパーモノ（純ライト）
-    { bg:"#ffffff", bg2:"#f7f7f7", line:"rgba(0,0,0,0.12)",      text:"#111111", muted:"#777777", accent:"#111111" }
+  // ダーク系10色（1番目は現在のシンプルテーマそのまま）
+  const DARK_THEMES = [
+    { bg:"#0b1f3a", bg2:"#0e2a52", line:"rgba(255,255,255,0.15)", text:"#ffffff", muted:"#9fb3d1", accent:"#4fa3ff" }, // シンプル（デフォルト）
+    { bg:"#050705", bg2:"#0c150c", line:"rgba(80,255,120,0.2)",  text:"#d8ffe0", muted:"#4fae64", accent:"#39ff6a" }, // デジタルグリーン
+    { bg:"#120a04", bg2:"#201203", line:"rgba(255,170,60,0.25)", text:"#ffe9c7", muted:"#c98a3a", accent:"#ff9d2e" }, // デジタルアンバー
+    { bg:"#160a24", bg2:"#20103a", line:"rgba(170,120,255,0.2)", text:"#ece3ff", muted:"#9d84c9", accent:"#a566ff" }, // ディープパープル
+    { bg:"#210a16", bg2:"#33101f", line:"rgba(255,120,170,0.2)", text:"#ffe2ec", muted:"#c98aa4", accent:"#ff5c8a" }, // ローズピンク
+    { bg:"#03191c", bg2:"#06272b", line:"rgba(60,220,210,0.2)",  text:"#d8fbf7", muted:"#4fae9f", accent:"#26d6c2" }, // オーシャンティール
+    { bg:"#210f04", bg2:"#331806", line:"rgba(255,150,60,0.22)", text:"#ffe6cf", muted:"#c9905a", accent:"#ff7f2a" }, // サンセットオレンジ
+    { bg:"#1c1604", bg2:"#2b2107", line:"rgba(255,214,60,0.22)", text:"#fff6d8", muted:"#c9ab4f", accent:"#ffcc33" }, // ゴールドイエロー
+    { bg:"#080b24", bg2:"#0e1338", line:"rgba(110,130,255,0.2)", text:"#e2e6ff", muted:"#7d8ac9", accent:"#5c72ff" }, // インディゴナイト
+    { bg:"#1c0508", bg2:"#2b0a0e", line:"rgba(255,90,90,0.22)",  text:"#ffdada", muted:"#c96a6a", accent:"#ff4d4d" }  // クリムゾン
+  ];
+
+  // ライト系10色
+  const LIGHT_THEMES = [
+    { bg:"#f4f6fa", bg2:"#ffffff", line:"rgba(15,40,90,0.15)",   text:"#10254a", muted:"#5b6f92", accent:"#1c4f8f" }, // NICTネイビー
+    { bg:"#fafafa", bg2:"#ffffff", line:"rgba(180,30,30,0.15)",  text:"#2a1414", muted:"#8a6060", accent:"#c62828" }, // NICTレッド
+    { bg:"#f2faf6", bg2:"#ffffff", line:"rgba(20,140,90,0.15)",  text:"#0f3324", muted:"#5c9a7d", accent:"#1f9d64" }, // ミントライト
+    { bg:"#f6f3fb", bg2:"#ffffff", line:"rgba(120,80,200,0.15)", text:"#2c2140", muted:"#8a7aad", accent:"#7c4fd6" }, // ラベンダーライト
+    { bg:"#fdf5ee", bg2:"#ffffff", line:"rgba(220,120,50,0.16)", text:"#3a2414", muted:"#af8567", accent:"#e07a30" }, // ピーチライト
+    { bg:"#f0f7fc", bg2:"#ffffff", line:"rgba(30,120,190,0.16)", text:"#0f2c40", muted:"#5f8aa8", accent:"#1c7fc4" }, // スカイライト
+    { bg:"#fdf2f4", bg2:"#ffffff", line:"rgba(210,50,90,0.16)",  text:"#3a1420", muted:"#af6d80", accent:"#d6336c" }, // チェリーライト
+    { bg:"#fdf8ea", bg2:"#ffffff", line:"rgba(200,150,20,0.18)", text:"#3a2f0f", muted:"#af9a5f", accent:"#d6a015" }, // ハニーライト
+    { bg:"#eefbfa", bg2:"#ffffff", line:"rgba(20,170,160,0.16)", text:"#0f3a36", muted:"#5ba39c", accent:"#14b8a6" }, // アクアライト
+    { bg:"#ffffff", bg2:"#f7f7f7", line:"rgba(0,0,0,0.12)",      text:"#111111", muted:"#777777", accent:"#111111" }  // ペーパーモノ
   ];
 
   const colorPicker = document.getElementById("colorPicker");
@@ -999,20 +1127,39 @@
     colorToggleSwatch.style.background = theme.accent;
   }
 
-  COLOR_THEMES.forEach((theme, i) => {
-    const swatch = document.createElement("button");
-    swatch.type = "button";
-    swatch.className = "color-swatch";
-    swatch.style.background = theme.accent;
-    swatch.setAttribute("aria-label", `カラー${i + 1}`);
-    if (i === 0) swatch.classList.add("active");
-    swatch.addEventListener("click", () => {
-      applyColorTheme(theme);
-      colorPalette.querySelectorAll(".color-swatch").forEach(s => s.classList.remove("active"));
-      swatch.classList.add("active");
+  function buildColorRow(themes, labelText, groupIndexOffset, markFirstActive){
+    const group = document.createElement("div");
+    group.className = "color-row-group";
+
+    const label = document.createElement("p");
+    label.className = "color-row-label";
+    label.textContent = labelText;
+    group.appendChild(label);
+
+    const row = document.createElement("div");
+    row.className = "color-row";
+
+    themes.forEach((theme, i) => {
+      const swatch = document.createElement("button");
+      swatch.type = "button";
+      swatch.className = "color-swatch";
+      swatch.style.background = theme.accent;
+      swatch.setAttribute("aria-label", `カラー${groupIndexOffset + i + 1}`);
+      if (markFirstActive && i === 0) swatch.classList.add("active");
+      swatch.addEventListener("click", () => {
+        applyColorTheme(theme);
+        colorPalette.querySelectorAll(".color-swatch").forEach(s => s.classList.remove("active"));
+        swatch.classList.add("active");
+      });
+      row.appendChild(swatch);
     });
-    colorPalette.appendChild(swatch);
-  });
+
+    group.appendChild(row);
+    return group;
+  }
+
+  colorPalette.appendChild(buildColorRow(DARK_THEMES, "ダーク系", 0, true));
+  colorPalette.appendChild(buildColorRow(LIGHT_THEMES, "ライト系", DARK_THEMES.length, false));
 
   colorToggleBtn.addEventListener("click", () => {
     colorPalette.classList.toggle("open");
