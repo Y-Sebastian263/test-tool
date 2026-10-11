@@ -494,6 +494,21 @@
     display:flex; gap:12px; flex-wrap:wrap; justify-content:center;
   }
 
+  /* ---- 任意文字アナグラムガチャ ---- */
+  #anagramView { justify-content:flex-start; padding-top:80px; }
+  .anagram-content { width:min(900px, 100%); margin:auto; display:flex; flex-direction:column; align-items:center; gap:22px; }
+  .anagram-heading { font-size:clamp(16px, 3vw, 24px); letter-spacing:0.08em; line-height:1.6; }
+  .anagram-help { margin:0; color:var(--muted); font-size:13px; line-height:1.8; }
+  .anagram-inputs { display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:12px; width:min(640px, 100%); }
+  .anagram-field { display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px; border:1px solid var(--line); border-radius:16px; background:var(--bg2); }
+  .anagram-field label { color:var(--muted); font-size:13px; }
+  .anagram-field input { width:100%; max-width:90px; padding:8px; text-align:center; font:inherit; font-size:28px; color:var(--text); background:transparent; border:1px solid var(--line); border-radius:10px; }
+  .anagram-field input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .anagram-status { margin:0; font-size:15px; color:var(--muted); }
+  .anagram-error { margin:0; color:var(--accent); font-size:14px; }
+  .anagram-results .dice-die { flex-direction:column; gap:6px; height:auto; min-height:clamp(80px, 15vw, 140px); padding:12px; }
+  .anagram-face { font-size:12px; font-weight:400; color:var(--muted); }
+  .anagram-word { margin:0; max-width:100%; overflow-wrap:anywhere; letter-spacing:0.08em; }
   /* ---- チンチロ（16:9固定枠） ---- */
   .chinchiro-frame{
     width: min(94vw, 165vh);
@@ -1373,6 +1388,7 @@
         <p class="site-menu-heading">企画支援</p>
         <button type="button" id="quizTimerOpenBtn" class="site-menu-quiz-btn">カウントダウンタイマー</button>
         <button type="button" id="diceOpenBtn" class="site-menu-quiz-btn">ダイス</button>
+        <button type="button" id="anagramOpenBtn" class="site-menu-quiz-btn">任意文字アナグラムガチャ</button>
         <button type="button" id="chinchiroOpenBtn" class="site-menu-quiz-btn">チンチロ</button>
         <button type="button" id="streamCalcOpenBtn" class="site-menu-quiz-btn">配信歴起算ツール</button>
       </div>
@@ -1532,6 +1548,23 @@
   <p class="dice-total" id="diceTotal"></p>
 </div>
 
+<div class="tool-overlay" id="anagramView">
+  <button type="button" id="anagramBackBtn" class="tool-back-btn">← 戻る</button>
+  <div class="anagram-content">
+    <h1 class="quiz-heading anagram-heading">任意文字アナグラムガチャ</h1>
+    <p class="anagram-help">ダイスの各目に、好きな文字を1文字ずつ設定してください。<br>文字数と同じ回数だけ振って、出た文字を順番に並べます。同じ文字が出ることもあります。</p>
+    <div class="anagram-inputs" id="anagramInputs"></div>
+    <button type="button" id="anagramAddBtn" class="tool-btn" aria-label="文字入力欄を追加">＋</button>
+    <p class="anagram-status" id="anagramStatus"></p>
+    <div class="dice-btn-row">
+      <button type="button" id="anagramRollBtn" class="tool-btn primary">ガチャを回す</button>
+      <button type="button" id="anagramResetBtn" class="tool-btn">リセット</button>
+    </div>
+    <p class="anagram-error" id="anagramError" role="alert" hidden></p>
+    <div class="dice-results anagram-results" id="anagramResults"></div>
+    <p class="dice-total anagram-word" id="anagramWord" aria-live="polite"></p>
+  </div>
+</div>
 <div class="tool-overlay" id="chinchiroView">
   <button type="button" id="chinchiroBackBtn" class="tool-back-btn">← 戻る</button>
 
@@ -1814,6 +1847,82 @@
     diceCountInput.value = 1;
   });
 
+  // ---- 任意文字アナグラムガチャ ----
+  const anagramView = document.getElementById("anagramView");
+  const anagramInputs = document.getElementById("anagramInputs");
+  const anagramStatus = document.getElementById("anagramStatus");
+  const anagramError = document.getElementById("anagramError");
+  const anagramResults = document.getElementById("anagramResults");
+  const anagramWord = document.getElementById("anagramWord");
+  const anagramSegmenter = new Intl.Segmenter("ja", { granularity:"grapheme" });
+
+  function clearAnagramResult(){
+    anagramResults.replaceChildren();
+    anagramWord.textContent = "";
+    anagramError.hidden = true;
+    anagramError.textContent = "";
+  }
+
+  function addAnagramField(focus = false){
+    const number = anagramInputs.children.length + 1;
+    const field = document.createElement("div");
+    field.className = "anagram-field";
+    const label = document.createElement("label");
+    label.htmlFor = `anagramChar${number}`;
+    label.textContent = `ダイス${number}`;
+    const input = document.createElement("input");
+    input.type = "text";
+    input.id = label.htmlFor;
+    input.placeholder = "1文字";
+    input.autocomplete = "off";
+    input.addEventListener("input", clearAnagramResult);
+    field.append(label, input);
+    anagramInputs.appendChild(field);
+    anagramStatus.textContent = `${number}面のダイスを ${number}回ふる`;
+    clearAnagramResult();
+    if (focus) input.focus();
+  }
+
+  document.getElementById("anagramOpenBtn").addEventListener("click", () => {
+    siteMenuPanel.classList.remove("open");
+    anagramView.classList.add("open");
+  });
+  document.getElementById("anagramBackBtn").addEventListener("click", () => {
+    anagramView.classList.remove("open");
+  });
+  document.getElementById("anagramAddBtn").addEventListener("click", () => addAnagramField(true));
+  document.getElementById("anagramResetBtn").addEventListener("click", () => {
+    anagramInputs.replaceChildren();
+    addAnagramField(true);
+  });
+  document.getElementById("anagramRollBtn").addEventListener("click", () => {
+    clearAnagramResult();
+    const inputs = Array.from(anagramInputs.querySelectorAll("input"));
+    const characters = inputs.map(input => input.value.trim());
+    const invalidIndex = characters.findIndex(value => Array.from(anagramSegmenter.segment(value)).length !== 1);
+    if (invalidIndex !== -1){
+      anagramError.textContent = `ダイス${invalidIndex + 1}に1文字を入力してください。`;
+      anagramError.hidden = false;
+      inputs[invalidIndex].focus();
+      return;
+    }
+    const word = [];
+    for (let i = 0; i < characters.length; i++){
+      const face = Math.floor(Math.random() * characters.length);
+      const badge = document.createElement("div");
+      badge.className = "dice-die";
+      const character = document.createElement("span");
+      character.textContent = characters[face];
+      const faceLabel = document.createElement("span");
+      faceLabel.className = "anagram-face";
+      faceLabel.textContent = `出目 ${face + 1}`;
+      badge.append(character, faceLabel);
+      anagramResults.appendChild(badge);
+      word.push(characters[face]);
+    }
+    anagramWord.textContent = word.join("");
+  });
+  addAnagramField();
   // ---- チンチロ ----
   const chinchiroView = document.getElementById("chinchiroView");
   const chinchiroOpenBtn = document.getElementById("chinchiroOpenBtn");
