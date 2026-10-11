@@ -496,11 +496,11 @@
 
   /* ---- 任意文字アナグラムガチャ ---- */
   #anagramView { justify-content:flex-start; padding-top:80px; }
-  .anagram-content { width:min(900px, 100%); margin:auto; display:flex; flex-direction:column; align-items:center; gap:22px; }
+  .anagram-content { width:min(1200px, 100%); margin:auto; display:flex; flex-direction:column; align-items:center; gap:22px; }
   .anagram-heading { font-size:clamp(16px, 3vw, 24px); letter-spacing:0.08em; line-height:1.6; }
   .anagram-help { margin:0; color:var(--muted); font-size:13px; line-height:1.8; }
-  .anagram-inputs { display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:12px; width:min(640px, 100%); }
-  .anagram-field { display:flex; flex-direction:column; align-items:center; gap:8px; padding:14px; border:1px solid var(--line); border-radius:16px; background:var(--bg2); }
+  .anagram-inputs { display:flex; flex-wrap:wrap; gap:8px; width:100%; justify-content:center; }
+  .anagram-field { flex:0 0 max(72px, calc((100% - 72px) / 10)); min-width:0; display:flex; flex-direction:column; align-items:center; gap:8px; padding:10px 6px; border:1px solid var(--line); border-radius:16px; background:var(--bg2); }
   .anagram-field label { color:var(--muted); font-size:13px; }
   .anagram-field input { width:100%; max-width:90px; padding:8px; text-align:center; font:inherit; font-size:28px; color:var(--text); background:transparent; border:1px solid var(--line); border-radius:10px; }
   .anagram-field input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
@@ -516,7 +516,6 @@
   .anagram-popup-progress { margin:0; font-size:18px; color:var(--accent); }
   .anagram-results .dice-die { animation:anagramPop .4s ease both; }
   @keyframes anagramPop { 0% { opacity:0; transform:scale(.4) translateY(24px); } 65% { opacity:1; transform:scale(1.1) translateY(0); } 100% { opacity:1; transform:scale(1); } }
-  @media (max-width:540px) { .anagram-inputs { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
   @media (prefers-reduced-motion:reduce) { .anagram-popup-character, .anagram-results .dice-die { animation:none; } }
   .anagram-history { width:min(640px, 100%); padding-top:24px; border-top:1px solid var(--line); text-align:left; }
   .anagram-history-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
@@ -526,6 +525,32 @@
   .anagram-history-item { padding:14px 18px; border:1px solid var(--line); border-radius:16px; background:var(--bg2); }
   .anagram-history-word { margin:0 0 6px; font-size:24px; font-weight:700; letter-spacing:0.08em; overflow-wrap:anywhere; }
   .anagram-history-meta { margin:0; font-size:12px; line-height:1.8; color:var(--muted); overflow-wrap:anywhere; }
+  .anagram-player { display:flex; flex-wrap:wrap; gap:12px; width:min(640px, 100%); text-align:left; }
+  .anagram-player-field { display:flex; flex-direction:column; gap:8px; flex:1 1 220px; min-width:0; }
+  .anagram-player label { color:var(--muted); font-size:13px; }
+  .anagram-player input, .anagram-player select { width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:var(--bg2); color:var(--text); font:inherit; }
+  .anagram-report { width:min(900px, calc(100vw - 32px)); max-height:85vh; padding:24px; border:1px solid var(--line); border-radius:20px; background:var(--bg); color:var(--text); font-family:var(--font); overflow:auto; }
+  .anagram-report::backdrop { background:rgba(0,0,0,.7); }
+  .anagram-report-header { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px; }
+  .anagram-report h2 { font-size:20px; margin:0; }
+  .anagram-report h3 { font-size:18px; overflow-wrap:anywhere; margin:24px 0 12px; color:var(--accent); }
+  .anagram-report-table { width:100%; border-collapse:collapse; table-layout:fixed; text-align:left; font-size:14px; }
+  .anagram-report-table th, .anagram-report-table td { padding:10px; border:1px solid var(--line); overflow-wrap:anywhere; }
+  .anagram-report-table th { color:var(--muted); font-weight:400; }
+  .anagram-report-actions { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-top:24px; }
+  @media print {
+    @page { size:A4; margin:16mm; }
+    html, body { height:auto; display:block !important; background:#fff !important; color:#000 !important; }
+    body > :not(#anagramReportDialog) { display:none !important; }
+    #anagramReportDialog { display:block !important; position:static !important; inset:auto; width:100%; max-width:none; height:auto; max-height:none; overflow:visible; margin:0; padding:0; border:0; border-radius:0; background:#fff; color:#000; box-shadow:none; }
+    #anagramReportDialog::backdrop { display:none; }
+    #anagramReportDialog .tool-btn, .anagram-report-actions { display:none !important; }
+    #anagramReportDialog h3, #anagramReportDialog th { color:#333; }
+    #anagramReportDialog th, #anagramReportDialog td { border-color:#aaa; }
+    #anagramReportDialog h3 { break-after:avoid; }
+    #anagramReportDialog tr { break-inside:avoid; }
+    #anagramReportDialog thead { display:table-header-group; }
+  }
   /* ---- チンチロ（16:9固定枠） ---- */
   .chinchiro-frame{
     width: min(94vw, 165vh);
@@ -1570,6 +1595,16 @@
   <div class="anagram-content">
     <h1 class="quiz-heading anagram-heading">任意文字アナグラムガチャ</h1>
     <p class="anagram-help">好きな文字を1文字ずつ入力してください。＋で入力欄を増やせます。空欄は使いません。<br>入力した文字数と同じ回数だけ振って、1文字ずつ発表します。同じ文字が出ることもあります。</p>
+    <div class="anagram-player">
+      <div class="anagram-player-field">
+        <label for="anagramPlayerName">ダイスを振る人の名前</label>
+        <input type="text" id="anagramPlayerName" placeholder="名前を入力" autocomplete="off">
+      </div>
+      <div class="anagram-player-field">
+        <label for="anagramPlayerSelect">一度振った人から選ぶ</label>
+        <select id="anagramPlayerSelect"><option value="">名前を選択</option></select>
+      </div>
+    </div>
     <div class="anagram-inputs" id="anagramInputs"></div>
     <button type="button" id="anagramAddBtn" class="tool-btn" aria-label="文字入力欄を追加">＋</button>
     <p class="anagram-status" id="anagramStatus"></p>
@@ -1587,6 +1622,7 @@
       </div>
       <p class="anagram-help" id="anagramHistoryEmpty">まだ履歴はありません。</p>
       <ol class="anagram-history-list" id="anagramHistoryList"></ol>
+      <div class="anagram-report-actions"><button type="button" id="anagramReportOpenBtn" class="tool-btn primary">結果出力</button></div>
     </section>
     <div class="anagram-popup" id="anagramPopup" hidden aria-hidden="true">
       <div id="anagramPopupLetter"></div>
@@ -1594,6 +1630,17 @@
     </div>
   </div>
 </div>
+<dialog class="anagram-report" id="anagramReportDialog" aria-labelledby="anagramReportTitle">
+  <div class="anagram-report-header">
+    <h2 id="anagramReportTitle">任意文字アナグラムガチャ 結果</h2>
+    <button type="button" id="anagramReportCloseBtn" class="tool-btn">閉じる</button>
+  </div>
+  <div id="anagramReportContent"></div>
+  <div class="anagram-report-actions">
+    <button type="button" id="anagramReportPdfBtn" class="tool-btn primary">PDFで保存</button>
+    <p class="anagram-help">印刷画面で「PDFとして保存」を選んでください。</p>
+  </div>
+</dialog>
 <div class="tool-overlay" id="chinchiroView">
   <button type="button" id="chinchiroBackBtn" class="tool-back-btn">← 戻る</button>
 
@@ -1894,11 +1941,105 @@
   const anagramHistoryList = document.getElementById("anagramHistoryList");
   const anagramHistoryEmpty = document.getElementById("anagramHistoryEmpty");
   const anagramHistoryKey = "ypp-anagram-history-v1";
+  const anagramPlayerName = document.getElementById("anagramPlayerName");
+  const anagramPlayerSelect = document.getElementById("anagramPlayerSelect");
+  const anagramReportDialog = document.getElementById("anagramReportDialog");
+  const anagramReportContent = document.getElementById("anagramReportContent");
+  const anagramReportOpenBtn = document.getElementById("anagramReportOpenBtn");
+  const anagramPlayersKey = "ypp-anagram-players-v1";
+  let anagramPlayers = [];
+  try {
+    const savedPlayers = JSON.parse(localStorage.getItem(anagramPlayersKey) || "[]");
+    if (Array.isArray(savedPlayers)) anagramPlayers = [...new Set(savedPlayers.filter(name => typeof name === "string" && name.trim() !== ""))];
+  } catch (error) {}
   let anagramHistory = [];
   try {
     const saved = JSON.parse(localStorage.getItem(anagramHistoryKey) || "[]");
     if (Array.isArray(saved)) anagramHistory = saved.filter(item => item && typeof item.word === "string" && typeof item.source === "string" && typeof item.time === "string" && Number.isFinite(Date.parse(item.time)));
   } catch (error) { /* 保存が使えない場合も、この画面で履歴を残す */ }
+
+  anagramHistory.forEach(item => {
+    if (typeof item.name === "string" && item.name.trim() && !anagramPlayers.includes(item.name)) anagramPlayers.push(item.name);
+  });
+  function saveAnagramPlayers(){
+    try { localStorage.setItem(anagramPlayersKey, JSON.stringify(anagramPlayers)); } catch (error) {}
+  }
+  function renderAnagramPlayers(){
+    const selected = anagramPlayerSelect.value;
+    anagramPlayerSelect.replaceChildren();
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "名前を選択";
+    anagramPlayerSelect.appendChild(placeholder);
+    anagramPlayers.forEach(name => {
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      anagramPlayerSelect.appendChild(option);
+    });
+    anagramPlayerSelect.value = anagramPlayers.includes(selected) ? selected : "";
+  }
+  renderAnagramPlayers();
+  anagramPlayerSelect.addEventListener("change", () => {
+    if (anagramPlayerSelect.value) anagramPlayerName.value = anagramPlayerSelect.value;
+  });
+  anagramPlayerName.addEventListener("input", () => {
+    anagramPlayerSelect.value = anagramPlayers.includes(anagramPlayerName.value.trim()) ? anagramPlayerName.value.trim() : "";
+  });
+
+  function renderAnagramReport(){
+    anagramReportContent.replaceChildren();
+    document.getElementById("anagramReportPdfBtn").disabled = anagramHistory.length === 0;
+    if (!anagramHistory.length){
+      const empty = document.createElement("p");
+      empty.textContent = "まだ結果がありません。";
+      anagramReportContent.appendChild(empty);
+      return;
+    }
+    const groups = new Map();
+    anagramHistory.slice().reverse().forEach(item => {
+      const name = typeof item.name === "string" && item.name.trim() ? item.name : "名前未設定";
+      if (!groups.has(name)) groups.set(name, []);
+      groups.get(name).push(item);
+    });
+    groups.forEach((items, name) => {
+      const heading = document.createElement("h3");
+      heading.textContent = name + "（" + items.length + "回）";
+      const table = document.createElement("table");
+      table.className = "anagram-report-table";
+      const thead = document.createElement("thead");
+      const header = document.createElement("tr");
+      ["日時", "結果", "入力文字"].forEach(label => {
+        const th = document.createElement("th");
+        th.scope = "col";
+        th.textContent = label;
+        header.appendChild(th);
+      });
+      thead.appendChild(header);
+      const tbody = document.createElement("tbody");
+      items.forEach(item => {
+        const row = document.createElement("tr");
+        [new Date(item.time).toLocaleString("ja-JP"), item.word, item.source].forEach(value => {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          row.appendChild(cell);
+        });
+        tbody.appendChild(row);
+      });
+      table.append(thead, tbody);
+      anagramReportContent.append(heading, table);
+    });
+  }
+  anagramReportOpenBtn.addEventListener("click", () => {
+    renderAnagramReport();
+    anagramReportDialog.showModal();
+  });
+  document.getElementById("anagramReportCloseBtn").addEventListener("click", () => anagramReportDialog.close());
+  document.getElementById("anagramReportPdfBtn").addEventListener("click", () => {
+    const originalTitle = document.title;
+    document.title = "任意文字アナグラムガチャ 結果";
+    try { window.print(); } finally { document.title = originalTitle; }
+  });
 
   function saveAnagramHistory(){
     try { localStorage.setItem(anagramHistoryKey, JSON.stringify(anagramHistory)); } catch (error) {}
@@ -1915,7 +2056,7 @@
       word.textContent = item.word;
       const meta = document.createElement("p");
       meta.className = "anagram-history-meta";
-      meta.textContent = new Date(item.time).toLocaleString("ja-JP") + " ／ 入力：" + item.source;
+      meta.textContent = (typeof item.name === "string" && item.name.trim() ? item.name : "名前未設定") + " ／ " + new Date(item.time).toLocaleString("ja-JP") + " ／ 入力：" + item.source;
       row.append(word, meta);
       anagramHistoryList.appendChild(row);
     });
@@ -1931,6 +2072,10 @@
     clearTimeout(anagramTimer);
     anagramTimer = null;
     anagramRolling = false;
+    anagramPlayerName.disabled = false;
+    anagramPlayerSelect.disabled = false;
+    anagramReportOpenBtn.disabled = false;
+    document.getElementById("anagramHistoryClearBtn").disabled = false;
     anagramAddBtn.disabled = false;
     anagramRollBtn.disabled = false;
     anagramRollBtn.textContent = "ガチャを回す";
@@ -1994,6 +2139,13 @@
   anagramRollBtn.addEventListener("click", () => {
     if (anagramRolling) return;
     clearAnagramResult();
+    const playerName = anagramPlayerName.value.trim();
+    if (!playerName){
+      anagramError.textContent = "ダイスを振る人の名前を入力してください。";
+      anagramError.hidden = false;
+      anagramPlayerName.focus();
+      return;
+    }
     const inputs = Array.from(anagramInputs.querySelectorAll("input"));
     const entries = inputs.map((input, index) => ({ input, number:index + 1, character:input.value.trim() })).filter(entry => entry.character !== "");
     if (!entries.length){
@@ -2010,6 +2162,10 @@
       return;
     }
     anagramRolling = true;
+    anagramPlayerName.disabled = true;
+    anagramPlayerSelect.disabled = true;
+    anagramReportOpenBtn.disabled = true;
+    document.getElementById("anagramHistoryClearBtn").disabled = true;
     anagramAddBtn.disabled = true;
     anagramRollBtn.disabled = true;
     anagramRollBtn.textContent = "抽選中…";
@@ -2039,7 +2195,11 @@
         } else {
           stopAnagramRoll();
           anagramWord.textContent = word.join("");
-          anagramHistory.unshift({ word:word.join(""), source:entries.map(entry => entry.character).join("・"), time:new Date().toISOString() });
+          anagramHistory.unshift({ name:playerName, word:word.join(""), source:entries.map(entry => entry.character).join("・"), time:new Date().toISOString() });
+          if (!anagramPlayers.includes(playerName)) anagramPlayers.push(playerName);
+          saveAnagramPlayers();
+          renderAnagramPlayers();
+          anagramPlayerSelect.value = playerName;
           saveAnagramHistory();
           renderAnagramHistory();
           anagramWord.scrollIntoView({ block:"nearest", behavior:"auto" });
