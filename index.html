@@ -527,8 +527,8 @@
   .anagram-history-actions { display:flex; flex-shrink:0; align-items:center; gap:6px; }
   .anagram-history-actions .tool-btn { padding:7px 12px; font-size:12px; }
   .anagram-history-editor { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:10px; }
-  .anagram-history-editor input { flex:1 1 140px; min-width:0; padding:9px 10px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--text); font:inherit; }
-  .anagram-history-editor input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .anagram-history-editor input, .anagram-history-editor select { flex:1 1 170px; min-width:0; padding:9px 10px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--text); font:inherit; }
+  .anagram-history-editor input:focus-visible, .anagram-history-editor select:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
   .anagram-history-editor-buttons { display:flex; align-items:center; gap:6px; }
   .anagram-history-editor-buttons .tool-btn { padding:7px 12px; font-size:12px; }
   .anagram-history-word { margin:0 0 6px; font-size:24px; font-weight:700; letter-spacing:0.08em; overflow-wrap:anywhere; }
@@ -2083,7 +2083,30 @@
         nameInput.autocomplete = "off";
         nameInput.required = true;
         nameInput.setAttribute("aria-label", "結果「" + item.word + "」の名前");
-        nameInput.addEventListener("input", () => nameInput.setCustomValidity(""));
+        // ガチャを回す時と同じ、過去に振った人の名前候補を使う。
+        const historySelect = document.createElement("select");
+        historySelect.setAttribute("aria-label", "履歴から名前を選ぶ");
+        const historyPlaceholder = document.createElement("option");
+        historyPlaceholder.value = "";
+        historyPlaceholder.textContent = "履歴から名前を選択";
+        historySelect.appendChild(historyPlaceholder);
+        anagramPlayers.forEach(player => {
+          const option = document.createElement("option");
+          option.value = player;
+          option.textContent = player;
+          historySelect.appendChild(option);
+        });
+        historySelect.value = anagramPlayers.includes(nameInput.value.trim()) ? nameInput.value.trim() : "";
+        historySelect.addEventListener("change", () => {
+          if (!historySelect.value) return;
+          nameInput.value = historySelect.value;
+          nameInput.setCustomValidity("");
+        });
+        nameInput.addEventListener("input", () => {
+          nameInput.setCustomValidity("");
+          const enteredName = nameInput.value.trim();
+          historySelect.value = anagramPlayers.includes(enteredName) ? enteredName : "";
+        });
         const buttons = document.createElement("div");
         buttons.className = "anagram-history-editor-buttons";
         const saveBtn = document.createElement("button");
@@ -2099,7 +2122,7 @@
           renderAnagramHistory();
         });
         buttons.append(saveBtn, cancelBtn);
-        form.append(nameInput, buttons);
+        form.append(nameInput, historySelect, buttons);
         form.addEventListener("submit", event => {
           event.preventDefault();
           if (anagramRolling || anagramHistory[index] !== item) return;
