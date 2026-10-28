@@ -516,7 +516,14 @@
   .anagram-batch-controls input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
   .anagram-batch-unit { color:var(--muted); font-size:13px; margin-left:-6px; }
   .anagram-batch-controls .tool-btn { padding:10px 18px; font-size:14px; }
-  .anagram-batch-help { margin:10px 0 0; color:var(--muted); font-size:11px; line-height:1.7; }
+  .anagram-batch-modes { display:flex; justify-content:center; align-items:center; gap:9px; margin-top:13px; }
+  .anagram-batch-modes .tool-btn { padding:9px 20px; border-radius:12px; font-size:13px; }
+  .anagram-batch-modes .tool-btn[aria-pressed="true"] { border-color:var(--accent); color:var(--text); background:color-mix(in srgb,var(--accent) 25%,var(--bg)); font-weight:700; }
+  .anagram-batch-progress { max-width:430px; height:6px; border-radius:99px; overflow:hidden; background:var(--line); margin:13px auto 0; }
+  .anagram-batch-progress[hidden] { display:none; }
+  .anagram-batch-progress-fill { width:0; height:100%; border-radius:99px; background:linear-gradient(90deg,var(--accent),#80e7d1); transition:width .2s ease; }
+  .anagram-batch-skip { pointer-events:auto; position:relative; z-index:1; background:var(--bg); font-weight:700; font-size:15px; padding:12px 28px; box-shadow:0 8px 30px rgba(0,0,0,.28); }
+  .anagram-batch-skip[hidden] { display:none; }
   .anagram-batch-status { min-height:1.35em; margin:9px 0 0; color:var(--accent); font-size:13px; font-weight:600; overflow-wrap:anywhere; }
   .anagram-batch-results { display:flex; justify-content:center; flex-wrap:wrap; gap:8px; }
   .anagram-batch-result { min-width:75px; max-width:180px; padding:12px 13px; border:1px solid var(--line); border-radius:12px; background:var(--bg2); text-align:center; }
@@ -1695,11 +1702,17 @@
     <div class="anagram-batch-box">
       <div class="anagram-batch-controls">
         <label for="anagramBatchCountInput">連ガチャ回数</label>
-        <input type="number" id="anagramBatchCountInput" min="1" max="1000" step="1" inputmode="numeric" value="10" aria-describedby="anagramBatchHelp">
+        <input type="number" id="anagramBatchCountInput" min="1" max="1000" step="1" inputmode="numeric" value="10">
         <span class="anagram-batch-unit">回</span>
         <button type="button" id="anagramBatchRollBtn" class="tool-btn primary">10連ガチャを回す</button>
       </div>
-      <p id="anagramBatchHelp" class="anagram-batch-help">1〜1,000回まで自由入力。連続抽選は演出を省略し、すべての結果を履歴とランキングへ記録します。</p>
+      <div class="anagram-batch-modes" role="group" aria-label="連ガチャの演出設定">
+        <button type="button" id="anagramBatchAnimatedBtn" class="tool-btn" aria-pressed="false">演出あり</button>
+        <button type="button" id="anagramBatchInstantBtn" class="tool-btn" aria-pressed="true">演出なし</button>
+      </div>
+      <div id="anagramBatchProgress" class="anagram-batch-progress" hidden>
+        <div id="anagramBatchProgressFill" class="anagram-batch-progress-fill"></div>
+      </div>
       <p id="anagramBatchStatus" class="anagram-batch-status" role="status" aria-live="polite"></p>
     </div>
     <p class="anagram-save-feedback" id="anagramSaveFeedback" aria-live="polite"></p>
@@ -1718,6 +1731,7 @@
     <div class="anagram-popup" id="anagramPopup" hidden aria-hidden="true">
       <div id="anagramPopupLetter"></div>
       <p class="anagram-popup-progress" id="anagramPopupProgress"></p>
+      <button type="button" id="anagramBatchSkipBtn" class="tool-btn primary anagram-batch-skip" hidden>演出をスキップ</button>
     </div>
   </div>
 </div>
@@ -2037,13 +2051,19 @@
   const anagramRollBtn = document.getElementById("anagramRollBtn");
   const anagramBatchCountInput = document.getElementById("anagramBatchCountInput");
   const anagramBatchRollBtn = document.getElementById("anagramBatchRollBtn");
+  const anagramBatchAnimatedBtn = document.getElementById("anagramBatchAnimatedBtn");
+  const anagramBatchInstantBtn = document.getElementById("anagramBatchInstantBtn");
+  const anagramBatchProgress = document.getElementById("anagramBatchProgress");
+  const anagramBatchProgressFill = document.getElementById("anagramBatchProgressFill");
   const anagramBatchStatus = document.getElementById("anagramBatchStatus");
+  const anagramBatchSkipBtn = document.getElementById("anagramBatchSkipBtn");
   const anagramPopup = document.getElementById("anagramPopup");
   const anagramPopupLetter = document.getElementById("anagramPopupLetter");
   const anagramPopupProgress = document.getElementById("anagramPopupProgress");
   const anagramSegmenter = new Intl.Segmenter("ja", { granularity:"grapheme" });
   let anagramTimer = null;
   let anagramRolling = false;
+  let anagramBatchSkipAnimation = null;
   const anagramAddBtn = document.getElementById("anagramAddBtn");
   const anagramHistoryList = document.getElementById("anagramHistoryList");
   const anagramHistoryEmpty = document.getElementById("anagramHistoryEmpty");
@@ -2320,12 +2340,19 @@
     anagramDataBtn.disabled = false;
     anagramBatchCountInput.disabled = false;
     anagramBatchRollBtn.disabled = false;
+    anagramBatchAnimatedBtn.disabled = false;
+    anagramBatchInstantBtn.disabled = false;
+    anagramBatchSkipBtn.hidden = true;
+    anagramBatchSkipBtn.disabled = true;
+    anagramBatchSkipAnimation = null;
     document.getElementById("anagramResetBtn").disabled = false;
+    document.getElementById("anagramBackBtn").disabled = false;
     anagramRollBtn.disabled = false;
     anagramRollBtn.textContent = "ガチャを回す";
     anagramInputs.querySelectorAll("input").forEach(input => input.disabled = false);
     anagramInputs.querySelectorAll(".anagram-field-actions button").forEach(button => { button.disabled = false; });
     anagramPopup.hidden = true;
+    anagramPopup.setAttribute("aria-hidden","true");
   }
 
   function clearAnagramResult(){
@@ -2335,6 +2362,8 @@
     anagramError.hidden = true;
     anagramError.textContent = "";
     anagramBatchStatus.textContent = "";
+    anagramBatchProgress.hidden = true;
+    anagramBatchProgressFill.style.width = "0%";
     anagramResults.classList.remove("anagram-batch-results");
   }
 
@@ -2342,6 +2371,8 @@
   const anagramDiceKey = "ypp-anagram-dice-v1";
   const anagramCurrentPlayerKey = "ypp-anagram-current-player-v1";
   const anagramBatchCountKey = "ypp-anagram-batch-count-v1";
+  const anagramBatchModeKey = "ypp-anagram-batch-mode-v1";
+  let anagramBatchMode = "instant";
   const anagramSaveAllBtn = document.getElementById("anagramSaveAllBtn");
   const anagramSaveFeedback = document.getElementById("anagramSaveFeedback");
   const anagramDataBtn = document.getElementById("anagramDataBtn");
@@ -2456,7 +2487,26 @@
     if (Number.isInteger(storedBatchCount) && storedBatchCount >= 1 && storedBatchCount <= 1000){
       anagramBatchCountInput.value = String(storedBatchCount);
     }
+    const storedBatchMode = localStorage.getItem(anagramBatchModeKey);
+    if (storedBatchMode === "animated" || storedBatchMode === "instant") anagramBatchMode = storedBatchMode;
   } catch (error) {}
+  function updateAnagramBatchModeButtons(){
+    anagramBatchAnimatedBtn.setAttribute("aria-pressed",String(anagramBatchMode === "animated"));
+    anagramBatchInstantBtn.setAttribute("aria-pressed",String(anagramBatchMode === "instant"));
+  }
+  updateAnagramBatchModeButtons();
+  anagramBatchAnimatedBtn.addEventListener("click", () => {
+    if (anagramRolling || anagramBatchMode === "animated") return;
+    anagramBatchMode = "animated";
+    updateAnagramBatchModeButtons();
+    markAnagramDiceDirty();
+  });
+  anagramBatchInstantBtn.addEventListener("click", () => {
+    if (anagramRolling || anagramBatchMode === "instant") return;
+    anagramBatchMode = "instant";
+    updateAnagramBatchModeButtons();
+    markAnagramDiceDirty();
+  });
   function updateAnagramBatchLabel(){
     const count = Number(anagramBatchCountInput.value);
     anagramBatchRollBtn.textContent = Number.isInteger(count) && count > 0 && count <= 1000
@@ -2477,7 +2527,7 @@
       format: "ypp-anagram-gacha-backup",
       version: 1,
       exportedAt: new Date().toISOString(),
-      settings: { diceCharacters: characters, currentPlayerName: playerName, batchCount },
+      settings: { diceCharacters: characters, currentPlayerName: playerName, batchCount, batchMode: anagramBatchMode },
       players: anagramPlayers.slice(),
       history: anagramHistory.slice()
     };
@@ -2516,6 +2566,7 @@
       localStorage.setItem(anagramDiceKey, JSON.stringify(characters));
       localStorage.setItem(anagramCurrentPlayerKey, playerName);
       localStorage.setItem(anagramBatchCountKey, String(batchCount));
+      localStorage.setItem(anagramBatchModeKey, anagramBatchMode);
     } catch (error){
       anagramSaveFeedback.dataset.state = "error";
       anagramSaveFeedback.textContent = "ブラウザへの保存に失敗しました。空き容量やプライベートモードを確認してください。";
@@ -2724,7 +2775,10 @@
     anagramDataBtn.disabled = true;
     anagramBatchCountInput.disabled = true;
     anagramBatchRollBtn.disabled = true;
+    anagramBatchAnimatedBtn.disabled = true;
+    anagramBatchInstantBtn.disabled = true;
     document.getElementById("anagramResetBtn").disabled = true;
+    document.getElementById("anagramBackBtn").disabled = true;
     anagramRollBtn.disabled = true;
     anagramRollBtn.textContent = "抽選中…";
     anagramInputs.querySelectorAll(".anagram-field-actions button").forEach(button => { button.disabled = true; });
@@ -2746,6 +2800,7 @@
       anagramPopupLetter.replaceChildren(popupCharacter);
       anagramPopupProgress.textContent = word.length + " / " + entries.length + "文字目";
       anagramPopup.hidden = false;
+      anagramPopup.setAttribute("aria-hidden","false");
       const badge = document.createElement("div");
       badge.className = "dice-die";
       const character = document.createElement("span");
@@ -2775,8 +2830,13 @@
     revealNext();
   });
 
-  // 連ガチャ：通常ガチャと同じ「各文字を戻してから抽選」を回数分繰り返す。
-  // 大量抽選では演出を省略し、UIが固まらないよう100回ずつ処理する。
+  // 連ガチャ：演出ありは各文字を順に発表してから次の回に進む。
+  // 結果一覧・履歴への追加は、すべての抽選が終わった時点だけで行う。
+  anagramBatchSkipBtn.addEventListener("click", () => {
+    if (anagramRolling && typeof anagramBatchSkipAnimation === "function"){
+      anagramBatchSkipAnimation();
+    }
+  });
   anagramBatchRollBtn.addEventListener("click", () => {
     if (anagramRolling) return;
     clearAnagramResult();
@@ -2790,27 +2850,27 @@
     const setup = getValidatedAnagramRollSetup();
     if (!setup) return;
     const {playerName,inputs,entries} = setup;
-    lockAnagramRollControls(inputs);
     const source = entries.map(entry=>entry.character).join("・");
     const batchRecords = [];
-    let completed = 0;
+    const selectedMode = anagramBatchMode;
+    let skipping = false;
+    lockAnagramRollControls(inputs);
+    anagramBatchProgress.hidden = false;
+    anagramBatchProgressFill.style.width = "0%";
     anagramBatchStatus.textContent = count.toLocaleString("ja-JP") + "連ガチャを開始しました…";
-    function processAnagramBatch(){
+
+    function drawAnagramRecord(){
+      const word = [];
+      for (let index=0;index<entries.length;index++){
+        word.push(entries[Math.floor(Math.random()*entries.length)].character);
+      }
+      return {name:playerName,word:word.join(""),source,time:new Date().toISOString()};
+    }
+    function updateBatchProgress(finished){
+      anagramBatchProgressFill.style.width = (finished / count * 100).toFixed(2) + "%";
+    }
+    function finishAnagramBatch(){
       if (!anagramRolling) return;
-      const batchEnd = Math.min(count,completed + 100);
-      while (completed < batchEnd){
-        const word = [];
-        for (let index=0;index<entries.length;index++){
-          word.push(entries[Math.floor(Math.random()*entries.length)].character);
-        }
-        batchRecords.push({name:playerName,word:word.join(""),source,time:new Date().toISOString()});
-        completed++;
-      }
-      anagramBatchStatus.textContent = completed.toLocaleString("ja-JP") + " / " + count.toLocaleString("ja-JP") + " 回 抽選中…";
-      if (completed < count){
-        anagramTimer = setTimeout(processAnagramBatch,0);
-        return;
-      }
       const recent = batchRecords.slice(-12).reverse();
       const uniqueCount = new Set(batchRecords.map(item=>item.word)).size;
       anagramHistory.unshift(...batchRecords.reverse());
@@ -2821,6 +2881,7 @@
       const saved = saveAnagramHistory();
       renderAnagramHistory();
       stopAnagramRoll();
+      anagramBatchProgress.hidden = true;
       anagramResults.classList.add("anagram-batch-results");
       recent.forEach((item,index)=>{
         const card = document.createElement("div");
@@ -2837,12 +2898,87 @@
       anagramWord.textContent = count.toLocaleString("ja-JP") + "連ガチャ完了";
       anagramBatchStatus.textContent =
         count.toLocaleString("ja-JP") + "回の結果を履歴に追加（今回 " +
-        uniqueCount.toLocaleString("ja-JP") + "パターン）。直近最大12件を表示中。" +
+        uniqueCount.toLocaleString("ja-JP") + "パターン）。" +
+        (count > 12 ? "最新12件を表示中。" : "全結果を表示中。") +
+        (skipping ? " 演出はスキップしました。" : "") +
         (saved ? "" : " ※ブラウザへの履歴保存に失敗しました。");
       if (anagramDataDialog.open) renderAnagramData();
       anagramWord.scrollIntoView({block:"nearest",behavior:"auto"});
     }
-    anagramTimer=setTimeout(processAnagramBatch,0);
+    function processAnagramBatchFast(){
+      if (!anagramRolling) return;
+      const end = Math.min(count,batchRecords.length + 100);
+      while (batchRecords.length < end) batchRecords.push(drawAnagramRecord());
+      updateBatchProgress(batchRecords.length);
+      anagramBatchStatus.textContent = batchRecords.length.toLocaleString("ja-JP") +
+        " / " + count.toLocaleString("ja-JP") + " 回 抽選中…";
+      if (batchRecords.length < count){
+        anagramTimer = setTimeout(processAnagramBatchFast,0);
+      } else {
+        finishAnagramBatch();
+      }
+    }
+    function skipRemainingAnimation(){
+      if (!anagramRolling || skipping) return;
+      skipping = true;
+      clearTimeout(anagramTimer);
+      anagramTimer = null;
+      anagramPopup.hidden = true;
+      anagramPopup.setAttribute("aria-hidden","true");
+      anagramBatchSkipBtn.hidden = true;
+      anagramBatchSkipBtn.disabled = true;
+      anagramBatchSkipAnimation = null;
+      anagramBatchStatus.textContent = "残りの演出をスキップして抽選しています…";
+      // 現在演出中の抽選もすでに batchRecords に含まれているので重複抽選しない。
+      anagramTimer = setTimeout(processAnagramBatchFast,0);
+    }
+    function animateNextDraw(){
+      if (!anagramRolling || skipping) return;
+      if (batchRecords.length >= count){
+        finishAnagramBatch();
+        return;
+      }
+      const record = drawAnagramRecord();
+      batchRecords.push(record);
+      const drawNumber = batchRecords.length;
+      const letters = Array.from(anagramSegmenter.segment(record.word),part=>part.segment);
+      let index = 0;
+      function showNextCharacter(){
+        if (!anagramRolling || skipping) return;
+        const letter = document.createElement("div");
+        letter.className = "anagram-popup-character";
+        letter.textContent = letters[index];
+        anagramPopupLetter.replaceChildren(letter);
+        anagramPopupProgress.textContent = drawNumber + " / " + count + " 回目　·　" +
+          (index+1) + " / " + letters.length + "文字";
+        anagramPopup.hidden = false;
+        anagramPopup.setAttribute("aria-hidden","false");
+        anagramBatchStatus.textContent = drawNumber + " / " + count + " 回 演出中…";
+        anagramTimer = setTimeout(() => {
+          if (!anagramRolling || skipping) return;
+          index++;
+          if (index < letters.length){
+            showNextCharacter();
+          } else {
+            updateBatchProgress(drawNumber);
+            if (drawNumber < count){
+              anagramTimer = setTimeout(animateNextDraw,220);
+            } else {
+              finishAnagramBatch();
+            }
+          }
+        },650);
+      }
+      showNextCharacter();
+    }
+    if (selectedMode === "animated"){
+      anagramBatchSkipAnimation = skipRemainingAnimation;
+      anagramBatchSkipBtn.disabled = false;
+      anagramBatchSkipBtn.hidden = false;
+      animateNextDraw();
+    } else {
+      anagramTimer = setTimeout(processAnagramBatchFast,0);
+    }
   });
 
   // ---- チンチロ ----
