@@ -584,6 +584,40 @@
   .anagram-jackpot-target-actions { display:flex; gap:6px; flex-shrink:0; }
   .anagram-jackpot-target-actions .tool-btn { padding:6px 10px; font-size:12px; }
   .anagram-jackpot-empty { padding:15px; border:1px dashed rgba(255,255,255,.2); border-radius:12px; text-align:center; color:#a8c2d9; font-size:13px; }
+  .anagram-maint-launch { margin-top:17px; display:flex; justify-content:space-between; align-items:center; gap:12px; padding:16px 18px; border:1px solid rgba(180,212,244,.25); border-radius:16px; background:rgba(8,28,53,.65); }
+  .anagram-maint-launch h3 { margin:0 0 4px; color:#fff; font-size:16px; }
+  .anagram-maint-launch p { margin:0; color:#a9c4dc; font-size:12px; }
+  .anagram-maint-launch .tool-btn { padding:8px 13px; font-size:12px; white-space:nowrap; }
+  .anagram-maint-dialog { width:min(740px,calc(100vw - 28px)); max-height:87dvh; overflow:auto; border:1px solid rgba(161,211,255,.3); border-radius:22px; padding:0; background:linear-gradient(160deg,#153657,#09192f); color:#eaf5ff; font-family:var(--font); box-shadow:0 25px 85px rgba(0,0,0,.6); }
+  .anagram-maint-dialog::backdrop { background:rgba(1,7,18,.81); backdrop-filter:blur(7px); }
+  .anagram-maint-shell { padding:clamp(18px,4vw,30px); }
+  .anagram-maint-head { display:flex; align-items:start; justify-content:space-between; gap:12px; margin-bottom:18px; }
+  .anagram-maint-head h2 { margin:0 0 7px; color:#fff; font-size:25px; }
+  .anagram-maint-head p { margin:0; color:#9cbdd8; font-size:12px; line-height:1.7; }
+  .anagram-maint-head .tool-btn { flex-shrink:0; padding:8px 13px; font-size:12px; }
+  .anagram-maint-panel { margin-bottom:12px; padding:16px; border:1px solid rgba(170,204,238,.18); border-radius:15px; background:rgba(255,255,255,.045); }
+  .anagram-maint-panel h3 { margin:0 0 12px; color:#fff; font-size:16px; }
+  .anagram-maint-checks { display:flex; flex-wrap:wrap; gap:18px; }
+  .anagram-maint-checks label { display:inline-flex; align-items:center; gap:8px; font-size:14px; cursor:pointer; }
+  .anagram-maint-checks input { accent-color:#7fcaf9; width:17px; height:17px; }
+  .anagram-maint-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:12px; }
+  .anagram-maint-field { display:flex; flex-direction:column; gap:6px; min-width:0; }
+  .anagram-maint-field label { color:#afcee7; font-size:12px; }
+  .anagram-maint-field input, .anagram-maint-field select { width:100%; min-width:0; border:1px solid rgba(182,220,247,.28); border-radius:10px; background:#0a203e; color:#fff; padding:10px 12px; font:inherit; font-size:14px; }
+  .anagram-maint-field input:disabled, .anagram-maint-field select:disabled { opacity:.45; }
+  .anagram-maint-tip { margin:11px 0 0; color:#a1bfd6; font-size:12px; line-height:1.7; }
+  .anagram-maint-odds { padding:17px; border:1px solid rgba(147,209,255,.25); border-radius:15px; background:rgba(4,14,36,.7); }
+  .anagram-maint-odds h3 { margin:0 0 10px; color:#fff; font-size:16px; }
+  .anagram-maint-odds p { color:#aac6df; margin:0 0 8px; font-size:12px; line-height:1.65; overflow-wrap:anywhere; }
+  .anagram-maint-odds p.anagram-maint-error { color:#ffacaa; }
+  .anagram-maint-odds-row { padding:10px 12px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-top:8px; border-radius:11px; background:rgba(255,255,255,.06); }
+  .anagram-maint-odds-row strong { color:#fff; font-size:13px; overflow-wrap:anywhere; }
+  .anagram-maint-odds-row span { color:#8cd2ff; font-size:13px; font-weight:700; }
+  .anagram-maint-actions { display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:17px; flex-wrap:wrap; }
+  .anagram-maint-actions .tool-btn { padding:10px 16px; font-size:13px; }
+  .anagram-maint-status { flex:1; min-width:140px; margin:0; color:#ffb7b7; font-size:12px; }
+  @media (max-width:540px) { .anagram-maint-fields { grid-template-columns:1fr; } }
+
   @keyframes anagramJackpotPulse { 50% { box-shadow:0 0 0 2px var(--jackpot-glow),0 0 55px var(--jackpot-glow),inset 0 0 30px var(--jackpot-glow); } }
   @keyframes anagramJackpotReveal { from { opacity:0; transform:scale(.55) rotate(-4deg); filter:brightness(1.8); } to { opacity:1; transform:scale(1) rotate(0); filter:brightness(1); } }
   @media (max-width:640px) {
@@ -1835,6 +1869,48 @@
       <p class="anagram-jackpot-feedback" id="anagramJackpotFeedback" role="status" aria-live="polite"></p>
       <ul class="anagram-jackpot-list" id="anagramJackpotList"></ul>
     </section>
+    <section class="anagram-maint-launch" aria-label="メンテナンス設定">
+      <div><h3>メンテナンス設定</h3><p>被り・天井・確率の詳細設定</p></div>
+      <button type="button" id="anagramMaintOpen" class="tool-btn">設定を開く</button>
+    </section>
+  </div>
+</dialog>
+<dialog class="anagram-maint-dialog" id="anagramMaintDialog" aria-labelledby="anagramMaintTitle">
+  <div class="anagram-maint-shell">
+    <div class="anagram-maint-head">
+      <div><span class="anagram-data-eyebrow">ANAGRAM / MAINTENANCE</span><h2 id="anagramMaintTitle">メンテナンス設定</h2><p>現在のダイスと履歴に基づく抽選ルールと、次の1回の確率。</p></div>
+      <button type="button" id="anagramMaintClose" class="tool-btn">閉じる</button>
+    </div>
+    <div class="anagram-maint-panel">
+      <h3>被りの設定</h3>
+      <div class="anagram-maint-checks">
+        <label><input type="checkbox" id="anagramMaintAllow" checked> 被りあり</label>
+        <label><input type="checkbox" id="anagramMaintNone"> 被り無し</label>
+      </div>
+      <div class="anagram-maint-fields">
+        <div class="anagram-maint-field"><label for="anagramMaintDupScope">被り無しの判定範囲</label><select id="anagramMaintDupScope"><option value="player">同じ人</option><option value="all">全体</option></select></div>
+      </div>
+      <p class="anagram-maint-tip">被り無し：同じダイス構成で、指定範囲の履歴にある完成文字列を再度引きません。</p>
+    </div>
+    <div class="anagram-maint-panel">
+      <h3>天井の設定</h3>
+      <div class="anagram-maint-checks"><label><input type="checkbox" id="anagramMaintPity"> 天井あり</label></div>
+      <div class="anagram-maint-fields">
+        <div class="anagram-maint-field"><label for="anagramMaintPityCount">天井回数</label><input id="anagramMaintPityCount" type="number" min="1" max="100000" step="1" inputmode="numeric" value="100"></div>
+        <div class="anagram-maint-field"><label for="anagramMaintPityScope">天井の判定範囲</label><select id="anagramMaintPityScope"><option value="player">同じ人</option><option value="all">全体</option></select></div>
+        <div class="anagram-maint-field" style="grid-column:1/-1"><label for="anagramMaintPityTarget">天井で確定する文字列</label><input id="anagramMaintPityTarget" type="text" maxlength="100" autocomplete="off" placeholder="好きな文字列を入力"></div>
+      </div>
+      <p class="anagram-maint-tip">指定文字列を自然に引くと天井カウントはリセット。天井回数到達時は天井を優先し、被り無しでも指定文字列が再出現する場合があります。</p>
+    </div>
+    <div class="anagram-maint-odds">
+      <h3>次の1回の確率</h3>
+      <div id="anagramMaintOdds" aria-live="polite"></div>
+    </div>
+    <div class="anagram-maint-actions">
+      <p id="anagramMaintStatus" class="anagram-maint-status" aria-live="polite"></p>
+      <button type="button" id="anagramMaintCancel" class="tool-btn">キャンセル</button>
+      <button type="button" id="anagramMaintSave" class="tool-btn primary">設定を保存</button>
+    </div>
   </div>
 </dialog>
 <dialog class="anagram-test-passcode-dialog" id="anagramJackpotPasscodeDialog" aria-labelledby="anagramJackpotPasscodeTitle">
@@ -2188,6 +2264,35 @@
   const anagramJackpotPasscodeCancelBtn = document.getElementById("anagramJackpotPasscodeCancelBtn");
   const anagramJackpotTestNote = document.getElementById("anagramJackpotTestNote");
   const anagramJackpotTestExitBtn = document.getElementById("anagramJackpotTestExitBtn");
+  const anagramMaintKey = "ypp-anagram-maintenance-v1";
+  const anagramMaintDialog = document.getElementById("anagramMaintDialog");
+  const anagramMaintOpen = document.getElementById("anagramMaintOpen");
+  const anagramMaintClose = document.getElementById("anagramMaintClose");
+  const anagramMaintCancel = document.getElementById("anagramMaintCancel");
+  const anagramMaintSave = document.getElementById("anagramMaintSave");
+  const anagramMaintStatus = document.getElementById("anagramMaintStatus");
+  const anagramMaintOdds = document.getElementById("anagramMaintOdds");
+  const anagramMaintAllow = document.getElementById("anagramMaintAllow");
+  const anagramMaintNone = document.getElementById("anagramMaintNone");
+  const anagramMaintDupScope = document.getElementById("anagramMaintDupScope");
+  const anagramMaintPity = document.getElementById("anagramMaintPity");
+  const anagramMaintPityCount = document.getElementById("anagramMaintPityCount");
+  const anagramMaintPityScope = document.getElementById("anagramMaintPityScope");
+  const anagramMaintPityTarget = document.getElementById("anagramMaintPityTarget");
+  let anagramMaint = {duplicates:"allow",dupScope:"player",pity:false,pityCount:100,pityScope:"player",pityTarget:""};
+  try {
+    const stored=JSON.parse(localStorage.getItem(anagramMaintKey)||"null");
+    if(stored&&typeof stored==="object"&&!Array.isArray(stored)){
+      anagramMaint={
+        duplicates:stored.duplicates==="none"?"none":"allow",
+        dupScope:stored.dupScope==="all"?"all":"player",
+        pity:stored.pity===true,
+        pityCount:Number.isInteger(stored.pityCount)&&stored.pityCount>=1&&stored.pityCount<=100000?stored.pityCount:100,
+        pityScope:stored.pityScope==="all"?"all":"player",
+        pityTarget:typeof stored.pityTarget==="string"?stored.pityTarget.slice(0,100).normalize("NFC"):""
+      };
+    }
+  } catch(error){}
   const anagramJackpotTiers = {gold:"🥇 金枠",silver:"🥈 銀枠",bronze:"🥉 銅枠"};
   let anagramJackpots = [];
   try {
@@ -2323,7 +2428,145 @@
     } catch (error) { return false; }
   }
 
-  // 編集対象は履歴1件のみ。別の人の結果は変更しない。
+  // Weighted sampling: a character with multiple dice entries retains its original probability.
+  function anagramDiceKeyFor(characters){
+    return JSON.stringify(characters.map(char=>char.normalize("NFC")).sort());
+  }
+  function anagramRecordDiceKey(item){
+    if(typeof item.diceSetKey==="string")return item.diceSetKey;
+    return typeof item.source==="string"?anagramDiceKeyFor(item.source.split("・")):null;
+  }
+  function validateAnagramMaint(rule,entries){
+    if(!rule.pity)return "";
+    if(!Number.isSafeInteger(rule.pityCount)||rule.pityCount<1||rule.pityCount>100000)return "天井回数は1〜100,000の整数を入力してください。";
+    const symbols=Array.from(anagramSegmenter.segment(rule.pityTarget.trim().normalize("NFC")),x=>x.segment);
+    if(!symbols.length)return "天井の確定文字列を入力してください。";
+    if(symbols.length!==entries.length)return "天井の対象文字列は有効なダイスと同じ"+entries.length+"文字で指定してください。";
+    const usable=new Set(entries.map(e=>e.character.normalize("NFC")));
+    if(symbols.some(char=>!usable.has(char)))return "天井の文字列には現在のダイスで出せる文字だけを入力してください。";
+    return "";
+  }
+  function anagramRandomBelow(limit){
+    if(limit<=1n)return 0n;
+    const bits=(limit-1n).toString(2).length,bytes=Math.ceil(bits/8),extra=bytes*8-bits;
+    const a=new Uint8Array(bytes);
+    const rng=typeof crypto!=="undefined"&&typeof crypto.getRandomValues==="function"?crypto:null;
+    while(true){
+      if(rng)rng.getRandomValues(a);
+      else for(let i=0;i<a.length;i++)a[i]=Math.floor(Math.random()*256);
+      a[0]&=255>>>extra;
+      let value=0n;
+      for(const byte of a)value=value*256n+BigInt(byte);
+      if(value<limit)return value;
+    }
+  }
+  function createAnagramDrawContext(player,entries,rule=anagramMaint){
+    const symbols=entries.map(e=>e.character.normalize("NFC"));
+    const len=symbols.length;
+    const key=anagramDiceKeyFor(symbols);
+    const weights=new Map();
+    symbols.forEach(s=>weights.set(s,(weights.get(s)||0)+1));
+    const letters=Array.from(weights.keys());
+    const radix=BigInt(len),total=radix**BigInt(len);
+    const split=word=>Array.from(anagramSegmenter.segment(word),x=>x.segment);
+    const mass=word=>{
+      if(typeof word!=="string")return 0n;
+      const chars=split(word.normalize("NFC"));
+      if(chars.length!==len)return 0n;
+      let result=1n;
+      for(const char of chars){if(!weights.has(char))return 0n;result*=BigInt(weights.get(char));}
+      return result;
+    };
+    const saved=anagramHistory.filter(item=>anagramRecordDiceKey(item)===key);
+    const root={children:new Map(),removed:0n};
+    const used=new Set();
+    function exclude(word){
+      const canonical=word.normalize("NFC");
+      const weight=mass(canonical);
+      if(weight===0n||used.has(canonical))return;
+      used.add(canonical);
+      let node=root;
+      node.removed+=weight;
+      for(const char of split(canonical)){
+        if(!node.children.has(char))node.children.set(char,{children:new Map(),removed:0n});
+        node=node.children.get(char);
+        node.removed+=weight;
+      }
+    }
+    if(rule.duplicates==="none"){
+      saved.forEach(item=>{
+        if(rule.dupScope==="all" || (typeof item.name==="string"&&item.name.trim()===player))exclude(item.word);
+      });
+    }
+    const pityWord=rule.pityTarget.trim().normalize("NFC");
+    let since=0;
+    if(rule.pity){
+      for(const item of saved){
+        if(rule.pityScope==="player"&&(typeof item.name!=="string"||item.name.trim()!==player))continue;
+        if(typeof item.word==="string"&&item.word.normalize("NFC")===pityWord)break;
+        since++;
+      }
+    }
+    function probability(word){
+      const text=typeof word==="string"?word.trim().normalize("NFC"):"";
+      if(rule.pity&&since>=rule.pityCount-1)return {numerator:text===pityWord?1n:0n,denominator:1n,forced:true};
+      const weight=mass(text);
+      if(!weight)return {numerator:0n,denominator:1n,forced:false};
+      if(rule.duplicates==="none"){
+        const denom=total-root.removed;
+        return {numerator:used.has(text)?0n:weight,denominator:denom>0n?denom:1n,forced:false};
+      }
+      return {numerator:weight,denominator:total,forced:false};
+    }
+    function sampleRemaining(){
+      if(root.removed>=total)return null;
+      let node=root,prefixWeight=1n,word="";
+      for(let index=0;index<len;index++){
+        const power=radix**BigInt(len-index-1);
+        const candidates=[];
+        let available=0n;
+        for(const letter of letters){
+          const child=node.children.get(letter);
+          const weight=prefixWeight*BigInt(weights.get(letter))*power-(child?child.removed:0n);
+          if(weight>0n){candidates.push({letter,child,weight});available+=weight;}
+        }
+        if(available<=0n)return null;
+        let random=anagramRandomBelow(available),chosen=candidates[candidates.length-1];
+        for(const option of candidates){if(random<option.weight){chosen=option;break;}random-=option.weight;}
+        word+=chosen.letter;
+        prefixWeight*=BigInt(weights.get(chosen.letter));
+        node=chosen.child||{children:new Map(),removed:0n};
+      }
+      return word;
+    }
+    function facesFor(word){
+      return split(word).map(char=>{
+        const matching=entries.filter(entry=>entry.character.normalize("NFC")===char);
+        return matching[Math.floor(Math.random()*matching.length)].number;
+      });
+    }
+    function draw(){
+      let word,faces,forced=false;
+      if(rule.pity&&since>=rule.pityCount-1){
+        word=pityWord;faces=facesFor(word);forced=true;
+      } else if(rule.duplicates==="none"){
+        word=sampleRemaining();
+        if(word===null)return null;
+        faces=facesFor(word);
+      } else {
+        const selected=[];
+        for(let i=0;i<len;i++)selected.push(entries[Math.floor(Math.random()*entries.length)]);
+        word=selected.map(item=>item.character.normalize("NFC")).join("");
+        faces=selected.map(item=>item.number);
+      }
+      if(rule.duplicates==="none")exclude(word);
+      if(rule.pity)since=word===pityWord?0:since+1;
+      return {word,faces,forced,diceSetKey:key};
+    }
+    return {draw,probability,getPityCount:()=>since,remainingPatterns:()=>BigInt(letters.length)**BigInt(len)-BigInt(used.size),total};
+  }
+
+  // 編集対象は履歴1件のみ。別の人の結果は変更しない.
   let anagramEditingItem = null;
   function renderAnagramHistory(){
     anagramHistoryList.replaceChildren();
