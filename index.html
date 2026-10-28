@@ -547,6 +547,25 @@
   .anagram-history-jackpot-label { display:inline-flex; vertical-align:middle; margin:0 0 7px; }
   .anagram-jackpot-settings { margin-top:27px; padding:20px; border:1px solid rgba(255,255,255,.14); border-radius:20px; background:rgba(4,17,37,.45); }
   .anagram-jackpot-settings h3 { margin:0 0 6px; font-size:20px; color:#fff; }
+  .anagram-jackpot-settings-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:5px; }
+  .anagram-jackpot-settings-heading h3 { margin:0; }
+  .anagram-jackpot-settings .anagram-jackpot-test-btn { font-size:10px; letter-spacing:.07em; padding:5px 11px; opacity:.75; border-radius:8px; flex-shrink:0; }
+  .anagram-jackpot-settings .anagram-jackpot-test-btn:hover { opacity:1; }
+  .anagram-test-passcode-dialog { width:min(420px,calc(100vw - 32px)); padding:26px; border:1px solid rgba(128,196,247,.35); border-radius:18px; color:#edf6ff; background:linear-gradient(150deg,#183556,#091a31); box-shadow:0 20px 85px rgba(0,0,0,.6); }
+  .anagram-test-passcode-dialog::backdrop { background:rgba(2,9,21,.75); backdrop-filter:blur(7px); }
+  .anagram-test-passcode-form { display:flex; flex-direction:column; gap:10px; font-family:var(--font); }
+  .anagram-test-passcode-form h2 { margin:0; font-size:23px; color:#fff; }
+  .anagram-test-passcode-form p { margin:0; font-size:13px; color:#a9c7e0; line-height:1.6; }
+  .anagram-test-passcode-form label { font-size:12px; color:#c5dbed; margin-top:7px; }
+  .anagram-test-passcode-form input { width:100%; padding:12px 13px; border:1px solid rgba(255,255,255,.3); border-radius:10px; background:#0c203e; color:#fff; font:inherit; font-size:18px; letter-spacing:.15em; }
+  .anagram-test-passcode-form input:focus-visible { outline:2px solid #78c7ff; outline-offset:2px; }
+  .anagram-test-passcode-form .anagram-test-passcode-error { min-height:18px; color:#ffadad; }
+  .anagram-test-passcode-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:5px; }
+  .anagram-test-passcode-actions .tool-btn { padding:9px 16px; font-size:13px; }
+  .anagram-popup[data-test="true"] { pointer-events:auto; }
+  .anagram-jackpot-test-note { font-size:12px; margin:0; padding:3px 10px; color:#d9eafa; background:rgba(6,17,37,.75); border-radius:999px; }
+  .anagram-jackpot-test-note[hidden], .anagram-jackpot-test-exit[hidden] { display:none; }
+  .anagram-jackpot-test-exit { pointer-events:auto; padding:10px 22px; font-size:14px; background:var(--bg); border:1px solid #b5cbe2; }
   .anagram-jackpot-settings p { margin:0 0 15px; font-size:12px; color:#acc8df; line-height:1.7; }
   .anagram-jackpot-form { display:grid; grid-template-columns:minmax(0,1fr) 135px auto auto; gap:9px; align-items:center; }
   .anagram-jackpot-form input, .anagram-jackpot-form select { width:100%; min-width:0; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.23); background:#0c2142; color:#fff; font:inherit; }
@@ -1775,6 +1794,8 @@
       <div id="anagramPopupLetter"></div>
       <p class="anagram-popup-progress" id="anagramPopupProgress"></p>
       <button type="button" id="anagramBatchSkipBtn" class="tool-btn primary anagram-batch-skip" hidden>演出をスキップ</button>
+      <p class="anagram-jackpot-test-note" id="anagramJackpotTestNote" hidden>演出テスト・抽選履歴には記録されません</p>
+      <button type="button" id="anagramJackpotTestExitBtn" class="tool-btn primary anagram-jackpot-test-exit" hidden>テスト終了</button>
     </div>
   </div>
 </div>
@@ -1788,9 +1809,13 @@
       </div>
       <button type="button" id="anagramDataCloseBtn" class="tool-btn anagram-data-close">閉じる</button>
     </div>
+    <div id="anagramDataContent" aria-live="polite"></div>
     <section class="anagram-jackpot-settings" aria-labelledby="anagramJackpotTitle">
       <span class="anagram-data-eyebrow">WINNING COMBINATIONS</span>
-      <h3 id="anagramJackpotTitle">大当たり設定</h3>
+      <div class="anagram-jackpot-settings-heading">
+        <h3 id="anagramJackpotTitle">大当たり設定</h3>
+        <button type="button" id="anagramJackpotTestBtn" class="tool-btn anagram-jackpot-test-btn" aria-label="大当たりの演出を順番にテスト">test</button>
+      </div>
       <p>当たりにする文字列と枠の色を登録します。抽選結果が完全一致すると、金・銀・銅の演出が発生します。設定はこのブラウザに保存されます。</p>
       <form id="anagramJackpotForm" class="anagram-jackpot-form">
         <input type="text" id="anagramJackpotWordInput" maxlength="100" placeholder="当たり文字列を入力" aria-label="大当たり文字列" required autocomplete="off">
@@ -1805,8 +1830,21 @@
       <p class="anagram-jackpot-feedback" id="anagramJackpotFeedback" role="status" aria-live="polite"></p>
       <ul class="anagram-jackpot-list" id="anagramJackpotList"></ul>
     </section>
-    <div id="anagramDataContent" aria-live="polite"></div>
   </div>
+</dialog>
+<dialog class="anagram-test-passcode-dialog" id="anagramJackpotPasscodeDialog" aria-labelledby="anagramJackpotPasscodeTitle">
+  <form id="anagramJackpotPasscodeForm" class="anagram-test-passcode-form">
+    <span class="anagram-data-eyebrow">JACKPOT PREVIEW</span>
+    <h2 id="anagramJackpotPasscodeTitle">演出テスト</h2>
+    <p>テストを再生するにはパスコードを入力してください。</p>
+    <label for="anagramJackpotPasscodeInput">パスコード</label>
+    <input id="anagramJackpotPasscodeInput" type="password" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="6桁のパスコード" required>
+    <p id="anagramJackpotPasscodeError" class="anagram-test-passcode-error" role="alert" aria-live="polite"></p>
+    <div class="anagram-test-passcode-actions">
+      <button type="button" id="anagramJackpotPasscodeCancelBtn" class="tool-btn">キャンセル</button>
+      <button type="submit" class="tool-btn primary">確認して再生</button>
+    </div>
+  </form>
 </dialog>
 <dialog class="anagram-report" id="anagramReportDialog" aria-labelledby="anagramReportTitle">
   <div class="anagram-report-header">
@@ -2137,6 +2175,14 @@
   const anagramJackpotCancelBtn = document.getElementById("anagramJackpotCancelBtn");
   const anagramJackpotFeedback = document.getElementById("anagramJackpotFeedback");
   const anagramJackpotList = document.getElementById("anagramJackpotList");
+  const anagramJackpotTestBtn = document.getElementById("anagramJackpotTestBtn");
+  const anagramJackpotPasscodeDialog = document.getElementById("anagramJackpotPasscodeDialog");
+  const anagramJackpotPasscodeForm = document.getElementById("anagramJackpotPasscodeForm");
+  const anagramJackpotPasscodeInput = document.getElementById("anagramJackpotPasscodeInput");
+  const anagramJackpotPasscodeError = document.getElementById("anagramJackpotPasscodeError");
+  const anagramJackpotPasscodeCancelBtn = document.getElementById("anagramJackpotPasscodeCancelBtn");
+  const anagramJackpotTestNote = document.getElementById("anagramJackpotTestNote");
+  const anagramJackpotTestExitBtn = document.getElementById("anagramJackpotTestExitBtn");
   const anagramJackpotTiers = {gold:"🥇 金枠",silver:"🥈 銀枠",bronze:"🥉 銅枠"};
   let anagramJackpots = [];
   try {
@@ -2869,6 +2915,100 @@
       }
     }
   }
+
+  // 大当たりのプレビューは抽選を行わず、保存済み履歴・ランキングを変更しない。
+  // UI上の簡易パスコードであり、サーバー側の認証ではない。
+  let anagramJackpotTesting = false;
+  let anagramJackpotTestTimer = null;
+  function finishAnagramJackpotTest(cancelled = false){
+    if (!anagramJackpotTesting) return;
+    clearTimeout(anagramJackpotTestTimer);
+    anagramJackpotTestTimer = null;
+    anagramJackpotTesting = false;
+    anagramPopup.hidden = true;
+    anagramPopup.setAttribute("aria-hidden","true");
+    anagramPopup.removeAttribute("data-jackpot");
+    anagramPopup.removeAttribute("data-test");
+    anagramPopupLetter.replaceChildren();
+    anagramPopupProgress.textContent = "";
+    anagramJackpotTestNote.hidden = true;
+    anagramJackpotTestExitBtn.hidden = true;
+    anagramJackpotFeedback.textContent = cancelled
+      ? "演出テストを終了しました。抽選履歴は変更していません。"
+      : "すべての大当たり演出テストが完了しました。抽選履歴は変更していません。";
+    if (!anagramDataDialog.open){
+      renderAnagramData();
+      renderAnagramJackpots();
+      anagramDataDialog.showModal();
+    }
+  }
+  function playAnagramJackpotTest(){
+    if (anagramRolling || anagramJackpotTesting) return;
+    // 金→銀→銅。各枠内では登録した順番を保つ。
+    const priorities = {gold:0,silver:1,bronze:2};
+    const targets = anagramJackpots.map(item => ({word:item.word,tier:item.tier}))
+      .sort((a,b)=>priorities[a.tier]-priorities[b.tier]);
+    if (!targets.length){
+      anagramJackpotFeedback.textContent = "先に大当たりを1件以上登録してください。";
+      return;
+    }
+    anagramJackpotPasscodeInput.value = "";
+    anagramJackpotPasscodeError.textContent = "";
+    if (anagramJackpotPasscodeDialog.open) anagramJackpotPasscodeDialog.close();
+    if (anagramDataDialog.open) anagramDataDialog.close();
+    anagramJackpotTesting = true;
+    anagramJackpotTestNote.hidden = false;
+    anagramJackpotTestExitBtn.hidden = false;
+    anagramBatchSkipBtn.hidden = true;
+    anagramPopup.dataset.test = "true";
+    let index = 0;
+    function showNextAnagramJackpotTest(){
+      if (!anagramJackpotTesting) return;
+      if (index >= targets.length){
+        finishAnagramJackpotTest();
+        return;
+      }
+      const target = targets[index++];
+      showAnagramJackpotReveal(
+        target.word, target, "演出テスト " + index + " / " + targets.length + "　" + anagramJackpotTiers[target.tier]
+      );
+      anagramJackpotTestTimer = setTimeout(showNextAnagramJackpotTest,2200);
+    }
+    showNextAnagramJackpotTest();
+  }
+  anagramJackpotTestBtn.addEventListener("click", () => {
+    if (anagramRolling || anagramJackpotTesting) return;
+    if (!anagramJackpots.length){
+      anagramJackpotFeedback.textContent = "先に大当たりを1件以上登録してください。";
+      return;
+    }
+    anagramJackpotPasscodeError.textContent = "";
+    anagramJackpotPasscodeInput.value = "";
+    anagramJackpotPasscodeDialog.showModal();
+    anagramJackpotPasscodeInput.focus();
+  });
+  anagramJackpotPasscodeForm.addEventListener("submit", event => {
+    event.preventDefault();
+    if (anagramJackpotPasscodeInput.value !== "320110"){
+      anagramJackpotPasscodeError.textContent = "パスコードが違います。";
+      anagramJackpotPasscodeInput.value = "";
+      anagramJackpotPasscodeInput.focus();
+      return;
+    }
+    playAnagramJackpotTest();
+  });
+  anagramJackpotPasscodeCancelBtn.addEventListener("click", () => anagramJackpotPasscodeDialog.close());
+  anagramJackpotPasscodeDialog.addEventListener("close", () => {
+    anagramJackpotPasscodeInput.value = "";
+    anagramJackpotPasscodeError.textContent = "";
+  });
+  anagramJackpotTestExitBtn.addEventListener("click", () => finishAnagramJackpotTest(true));
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && anagramJackpotTesting){
+      event.preventDefault();
+      finishAnagramJackpotTest(true);
+    }
+  });
 
   // 現在の有効文字で作れるユニークな結果は、異なる文字数 ^ 抽選回数。
   // 毎回復元抽選なので並び順が異なる結果は別、重複文字は同一パターンとして扱う。
