@@ -524,7 +524,13 @@
   .anagram-history-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
   .anagram-history-item { display:flex; align-items:center; gap:12px; padding:14px 18px; border:1px solid var(--line); border-radius:16px; background:var(--bg2); }
   .anagram-history-details { flex:1; min-width:0; }
-  .anagram-history-delete { flex-shrink:0; padding:7px 12px; font-size:12px; }
+  .anagram-history-actions { display:flex; flex-shrink:0; align-items:center; gap:6px; }
+  .anagram-history-actions .tool-btn { padding:7px 12px; font-size:12px; }
+  .anagram-history-editor { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:10px; }
+  .anagram-history-editor input { flex:1 1 140px; min-width:0; padding:9px 10px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--text); font:inherit; }
+  .anagram-history-editor input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .anagram-history-editor-buttons { display:flex; align-items:center; gap:6px; }
+  .anagram-history-editor-buttons .tool-btn { padding:7px 12px; font-size:12px; }
   .anagram-history-word { margin:0 0 6px; font-size:24px; font-weight:700; letter-spacing:0.08em; overflow-wrap:anywhere; }
   .anagram-history-meta { margin:0; font-size:12px; line-height:1.8; color:var(--muted); overflow-wrap:anywhere; }
   .anagram-player { display:flex; flex-wrap:wrap; gap:12px; width:min(640px, 100%); text-align:left; }
@@ -2047,6 +2053,8 @@
     try { localStorage.setItem(anagramHistoryKey, JSON.stringify(anagramHistory)); } catch (error) {}
   }
 
+  // 編集対象は履歴1件のみ。別の人の結果は変更しない。
+  let anagramEditingItem = null;
   function renderAnagramHistory(){
     anagramHistoryList.replaceChildren();
     anagramHistoryEmpty.hidden = anagramHistory.length > 0;
@@ -2063,28 +2071,110 @@
       const name = typeof item.name === "string" && item.name.trim() ? item.name : "名前未設定";
       const date = new Date(item.time).toLocaleString("ja-JP");
       meta.textContent = name + " ／ " + date + " ／ 入力：" + item.source;
-      const deleteBtn = document.createElement("button");
-      deleteBtn.type = "button";
-      deleteBtn.className = "tool-btn anagram-history-delete";
-      deleteBtn.textContent = "削除";
-      deleteBtn.setAttribute("aria-label", name + "の結果「" + item.word + "」を削除");
-      deleteBtn.disabled = anagramRolling;
-      deleteBtn.addEventListener("click", () => {
-        if (anagramRolling || anagramHistory[index] !== item) return;
-        if (!window.confirm("「" + item.word + "」（" + name + "／" + date + "）を履歴から削除しますか？")) return;
-        anagramHistory.splice(index, 1);
-        saveAnagramHistory();
-        renderAnagramHistory();
-        if (anagramReportDialog.open) renderAnagramReport();
-      });
       details.append(word, meta);
-      row.append(details, deleteBtn);
+
+      if (anagramEditingItem === item && !anagramRolling){
+        const form = document.createElement("form");
+        form.className = "anagram-history-editor";
+        const nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.value = typeof item.name === "string" ? item.name : "";
+        nameInput.placeholder = "名前を入力";
+        nameInput.autocomplete = "off";
+        nameInput.required = true;
+        nameInput.setAttribute("aria-label", "結果「" + item.word + "」の名前");
+        nameInput.addEventListener("input", () => nameInput.setCustomValidity(""));
+        const buttons = document.createElement("div");
+        buttons.className = "anagram-history-editor-buttons";
+        const saveBtn = document.createElement("button");
+        saveBtn.type = "submit";
+        saveBtn.className = "tool-btn primary";
+        saveBtn.textContent = "保存";
+        const cancelBtn = document.createElement("button");
+        cancelBtn.type = "button";
+        cancelBtn.className = "tool-btn";
+        cancelBtn.textContent = "キャンセル";
+        cancelBtn.addEventListener("click", () => {
+          anagramEditingItem = null;
+          renderAnagramHistory();
+        });
+        buttons.append(saveBtn, cancelBtn);
+        form.append(nameInput, buttons);
+        form.addEventListener("submit", event => {
+          event.preventDefault();
+          if (anagramRolling || anagramHistory[index] !== item) return;
+          const editedName = nameInput.value.trim();
+          if (!editedName){
+            nameInput.setCustomValidity("名前を入力してください。");
+            nameInput.reportValidity();
+            return;
+          }
+          const previousName = typeof item.name === "string" ? item.name : "";
+          if (editedName !== previousName){
+            const previousPlayer = previousName.trim();
+            const wasSelected = previousPlayer && anagramPlayerSelect.value === previousPlayer;
+            const wasEntered = previousPlayer && anagramPlayerName.value.trim() === previousPlayer;
+            item.name = editedName;
+            const oldNameStillUsed = anagramHistory.some(entry => entry !== item && entry.name === previousPlayer);
+            // 誤字修正後、他の履歴に使われていない古い名前だけ候補から除く。
+            if (previousPlayer && !oldNameStillUsed){
+              anagramPlayers = anagramPlayers.filter(player => player !== previousPlayer);
+            }
+            if (!anagramPlayers.includes(editedName)) anagramPlayers.push(editedName);
+            saveAnagramPlayers();
+            renderAnagramPlayers();
+            if (previousPlayer && !oldNameStillUsed){
+              if (wasSelected) anagramPlayerSelect.value = editedName;
+              if (wasEntered) anagramPlayerName.value = editedName;
+            }
+            saveAnagramHistory();
+            if (anagramReportDialog.open) renderAnagramReport();
+          }
+          anagramEditingItem = null;
+          renderAnagramHistory();
+        });
+        details.appendChild(form);
+        row.appendChild(details);
+      } else {
+        const actions = document.createElement("div");
+        actions.className = "anagram-history-actions";
+        const editBtn = document.createElement("button");
+        editBtn.type = "button";
+        editBtn.className = "tool-btn anagram-history-edit";
+        editBtn.textContent = "編集";
+        editBtn.setAttribute("aria-label", name + "の結果「" + item.word + "」の名前を編集");
+        editBtn.disabled = anagramRolling;
+        editBtn.addEventListener("click", () => {
+          if (anagramRolling || anagramHistory[index] !== item) return;
+          anagramEditingItem = item;
+          renderAnagramHistory();
+          const input = anagramHistoryList.querySelector(".anagram-history-editor input");
+          if (input){ input.focus(); input.select(); }
+        });
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "tool-btn anagram-history-delete";
+        deleteBtn.textContent = "削除";
+        deleteBtn.setAttribute("aria-label", name + "の結果「" + item.word + "」を削除");
+        deleteBtn.disabled = anagramRolling;
+        deleteBtn.addEventListener("click", () => {
+          if (anagramRolling || anagramHistory[index] !== item) return;
+          if (!window.confirm("「" + item.word + "」（" + name + "／" + date + "）を履歴から削除しますか？")) return;
+          anagramHistory.splice(index, 1);
+          saveAnagramHistory();
+          renderAnagramHistory();
+          if (anagramReportDialog.open) renderAnagramReport();
+        });
+        actions.append(editBtn, deleteBtn);
+        row.append(details, actions);
+      }
       anagramHistoryList.appendChild(row);
     });
   }
   renderAnagramHistory();
   document.getElementById("anagramHistoryClearBtn").addEventListener("click", () => {
     anagramHistory = [];
+    anagramEditingItem = null;
     saveAnagramHistory();
     renderAnagramHistory();
   });
@@ -2097,7 +2187,7 @@
     anagramPlayerSelect.disabled = false;
     anagramReportOpenBtn.disabled = false;
     document.getElementById("anagramHistoryClearBtn").disabled = false;
-    anagramHistoryList.querySelectorAll(".anagram-history-delete").forEach(button => { button.disabled = false; });
+    anagramHistoryList.querySelectorAll(".anagram-history-actions button").forEach(button => { button.disabled = false; });
     anagramAddBtn.disabled = false;
     anagramRollBtn.disabled = false;
     anagramRollBtn.textContent = "ガチャを回す";
@@ -2184,7 +2274,8 @@
       return;
     }
     anagramRolling = true;
-    anagramHistoryList.querySelectorAll(".anagram-history-delete").forEach(button => { button.disabled = true; });
+    anagramEditingItem = null;
+    renderAnagramHistory();
     anagramPlayerName.disabled = true;
     anagramPlayerSelect.disabled = true;
     anagramReportOpenBtn.disabled = true;
