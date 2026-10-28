@@ -505,8 +505,62 @@
   .anagram-field input { width:100%; max-width:100px; padding:8px; text-align:center; font:inherit; font-size:28px; color:var(--text); background:transparent; border:1px solid var(--line); border-radius:10px; }
   .anagram-field input[readonly] { opacity:0.82; }
   .anagram-field input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
-  .anagram-field-actions { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; }
-  .anagram-field-actions .tool-btn { flex:1 1 0; min-width:0; padding:7px 4px; font-size:12px; white-space:nowrap; }
+  .anagram-field-actions { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; flex-wrap:wrap; }
+  .anagram-field-actions .tool-btn { flex:1 1 0; min-width:0; padding:7px 8px; font-size:12px; white-space:nowrap; }
+  .anagram-field-actions .anagram-field-delete { color:#ffaaa7; }
+  .anagram-field-actions .anagram-field-delete[hidden] { display:none; }
+  .anagram-save-feedback { margin:0; min-height:18px; color:var(--muted); font-size:12px; text-align:center; }
+  .anagram-save-feedback[data-state="dirty"] { color:#ffd595; }
+  .anagram-save-feedback[data-state="saved"] { color:#a7e6ca; }
+  .anagram-save-feedback[data-state="error"] { color:#ffaaa7; }
+  /* Anagram completion dashboard */
+  .anagram-data-dialog { width:min(940px,calc(100vw - 28px)); max-height:88dvh; padding:0; border:1px solid rgba(255,255,255,.18); border-radius:24px; color:var(--text); background:linear-gradient(155deg,#17355a 0%,#091a34 65%,#0b1830 100%); font-family:var(--font); box-shadow:0 24px 90px rgba(0,0,0,.5); overflow:auto; }
+  .anagram-data-dialog::backdrop { background:rgba(1,8,20,.82); backdrop-filter:blur(8px); }
+  .anagram-data-shell { padding:clamp(18px,4vw,36px); }
+  .anagram-data-header { display:flex; justify-content:space-between; align-items:start; gap:12px; margin-bottom:22px; }
+  .anagram-data-eyebrow { display:block; color:#78c7ff; font-size:11px; font-weight:700; letter-spacing:.24em; text-transform:uppercase; margin-bottom:7px; }
+  .anagram-data-header h2 { font-size:clamp(22px,4vw,34px); line-height:1.25; margin:0 0 8px; color:#fff; letter-spacing:.02em; }
+  .anagram-data-intro { margin:0; font-size:13px; line-height:1.8; color:#afc5dc; }
+  .anagram-data-close { min-width:62px; font-size:13px; padding:9px 14px; flex-shrink:0; }
+  .anagram-data-hero { border:1px solid rgba(114,204,255,.32); border-radius:20px; padding:clamp(18px,3vw,28px); background:radial-gradient(circle at 100% 0%,rgba(79,163,255,.26),transparent 50%),linear-gradient(110deg,rgba(42,85,139,.45),rgba(9,24,49,.7)); }
+  .anagram-data-hero-label { color:#b5d3f1; font-size:12px; letter-spacing:.13em; font-weight:700; margin:0 0 8px; }
+  .anagram-data-percent { font-size:clamp(37px,8vw,64px); font-weight:800; line-height:1.1; color:#fff; font-variant-numeric:tabular-nums; letter-spacing:-.04em; overflow-wrap:anywhere; }
+  .anagram-data-percent small { font-size:clamp(15px,3vw,21px); font-weight:500; letter-spacing:normal; color:#bdcee4; }
+  .anagram-data-track { height:12px; border-radius:999px; background:rgba(255,255,255,.13); overflow:hidden; margin:18px 0 12px; }
+  .anagram-data-fill { height:100%; border-radius:inherit; background:linear-gradient(90deg,#49b5ff,#80e7d1); box-shadow:0 0 16px #49b5ff66; transition:width .28s ease; }
+  .anagram-data-ratio { font-weight:700; color:#eaf7ff; font-size:16px; letter-spacing:.02em; overflow-wrap:anywhere; }
+  .anagram-data-ratio span { color:#93b4d4; font-weight:400; font-size:12px; }
+  .anagram-data-metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:14px 0 24px; }
+  .anagram-data-metric { padding:17px 15px; border-radius:16px; border:1px solid rgba(255,255,255,.11); background:rgba(255,255,255,.055); min-width:0; }
+  .anagram-data-metric-label { margin:0 0 8px; font-size:12px; color:#9ebbd8; }
+  .anagram-data-metric-value { margin:0; font-size:clamp(20px,3.5vw,29px); font-weight:700; color:#fff; overflow-wrap:anywhere; font-variant-numeric:tabular-nums; }
+  .anagram-data-metric-detail { color:#98b6cf; font-size:11px; margin:6px 0 0; }
+  .anagram-data-section-heading { display:flex; justify-content:space-between; flex-wrap:wrap; align-items:baseline; gap:8px; margin:0 0 12px; }
+  .anagram-data-section-heading h3 { margin:0; color:#fff; font-size:19px; letter-spacing:.04em; }
+  .anagram-data-section-heading p { color:#93b4d4; font-size:12px; margin:0; }
+  .anagram-data-ranks { display:flex; flex-direction:column; gap:10px; margin:0; padding:0; list-style:none; }
+  .anagram-data-rank { display:flex; align-items:center; gap:14px; padding:14px 16px; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.045); border-radius:16px; }
+  .anagram-data-rank[data-rank="1"] { border-color:rgba(255,214,124,.48); background:linear-gradient(100deg,rgba(255,197,75,.13),rgba(255,255,255,.04)); }
+  .anagram-data-rank[data-rank="2"] { border-color:rgba(202,218,240,.29); }
+  .anagram-data-rank[data-rank="3"] { border-color:rgba(241,176,136,.27); }
+  .anagram-data-rank-number { flex:0 0 52px; text-align:center; font-size:19px; font-weight:800; color:#c9e4fa; font-variant-numeric:tabular-nums; }
+  .anagram-data-rank[data-rank="1"] .anagram-data-rank-number { color:#ffdb85; }
+  .anagram-data-rank-name-area { flex:1 1 150px; min-width:0; }
+  .anagram-data-rank-name { font-size:15px; font-weight:700; margin:0 0 7px; color:#fff; overflow-wrap:anywhere; }
+  .anagram-data-mini-track { width:100%; max-width:340px; height:5px; background:rgba(255,255,255,.14); border-radius:99px; overflow:hidden; }
+  .anagram-data-mini-fill { height:100%; background:linear-gradient(90deg,#479fff,#86e6cb); border-radius:99px; }
+  .anagram-data-rank-stats { display:flex; gap:18px; flex-shrink:0; }
+  .anagram-data-rank-stat { text-align:right; min-width:74px; }
+  .anagram-data-rank-stat strong { display:block; color:#fff; font-size:22px; font-variant-numeric:tabular-nums; }
+  .anagram-data-rank-stat small { display:block; color:#98b5d2; font-size:11px; }
+  .anagram-data-note { color:#9cb8d2; font-size:12px; line-height:1.8; margin:16px 0 0; }
+  .anagram-data-empty { padding:30px 18px; text-align:center; line-height:1.8; background:rgba(255,255,255,.05); border:1px dashed rgba(255,255,255,.15); color:#c0d7eb; border-radius:16px; }
+  @media (max-width:600px){
+    .anagram-data-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .anagram-data-rank { flex-wrap:wrap; gap:10px; }
+    .anagram-data-rank-number { flex-basis:44px; }
+    .anagram-data-rank-stats { width:100%; justify-content:flex-end; }
+  }
   .anagram-status { margin:0; font-size:15px; color:var(--muted); }
   .anagram-error { margin:0; color:var(--accent); font-size:14px; }
   .anagram-results .dice-die { flex-direction:column; gap:6px; height:auto; min-height:clamp(80px, 15vw, 140px); padding:12px; }
@@ -1605,7 +1659,7 @@
   <button type="button" id="anagramBackBtn" class="tool-back-btn">← 戻る</button>
   <div class="anagram-content">
     <h1 class="quiz-heading anagram-heading">任意文字アナグラムガチャ</h1>
-    <p class="anagram-help">ダイスの文字は編集・保存・削除できます。入力した文字とダイスの数は自動保存され、再読み込み後も復元されます。＋で追加できます。空欄は使いません。<br>入力した文字数と同じ回数だけ振って、1文字ずつ発表します。同じ文字が出ることもあります。</p>
+    <p class="anagram-help">ダイスの文字は「編集」で変更できます。変更後は「全設定保存」でブラウザに保存してください。編集中は個別削除もできます。＋で追加、空欄は抽選に使いません。<br>入力した文字数と同じ回数だけ振って、1文字ずつ発表します。同じ文字が出ることもあります。</p>
     <div class="anagram-player">
       <div class="anagram-player-field">
         <label for="anagramPlayerName">ダイスを振る人の名前</label>
@@ -1621,8 +1675,11 @@
     <p class="anagram-status" id="anagramStatus"></p>
     <div class="dice-btn-row">
       <button type="button" id="anagramRollBtn" class="tool-btn primary">ガチャを回す</button>
+      <button type="button" id="anagramSaveAllBtn" class="tool-btn">全設定保存</button>
       <button type="button" id="anagramResetBtn" class="tool-btn">リセット</button>
+      <button type="button" id="anagramDataBtn" class="tool-btn">データ</button>
     </div>
+    <p class="anagram-save-feedback" id="anagramSaveFeedback" aria-live="polite"></p>
     <p class="anagram-error" id="anagramError" role="alert" hidden></p>
     <div class="dice-results anagram-results" id="anagramResults"></div>
     <p class="dice-total anagram-word" id="anagramWord" aria-live="polite"></p>
@@ -1641,6 +1698,19 @@
     </div>
   </div>
 </div>
+<dialog class="anagram-data-dialog" id="anagramDataDialog" aria-labelledby="anagramDataTitle">
+  <div class="anagram-data-shell">
+    <div class="anagram-data-header">
+      <div>
+        <span class="anagram-data-eyebrow">ANAGRAM GACHA / STATISTICS</span>
+        <h2 id="anagramDataTitle">コンプリートデータ</h2>
+        <p class="anagram-data-intro">現在のダイス文字で出せる結果と、抽選履歴から集計したランキング</p>
+      </div>
+      <button type="button" id="anagramDataCloseBtn" class="tool-btn anagram-data-close">閉じる</button>
+    </div>
+    <div id="anagramDataContent" aria-live="polite"></div>
+  </div>
+</dialog>
 <dialog class="anagram-report" id="anagramReportDialog" aria-labelledby="anagramReportTitle">
   <div class="anagram-report-header">
     <h2 id="anagramReportTitle">任意文字アナグラムガチャ 結果</h2>
@@ -1993,9 +2063,11 @@
   renderAnagramPlayers();
   anagramPlayerSelect.addEventListener("change", () => {
     if (anagramPlayerSelect.value) anagramPlayerName.value = anagramPlayerSelect.value;
+    markAnagramDiceDirty();
   });
   anagramPlayerName.addEventListener("input", () => {
     anagramPlayerSelect.value = anagramPlayers.includes(anagramPlayerName.value.trim()) ? anagramPlayerName.value.trim() : "";
+    markAnagramDiceDirty();
   });
 
   function renderAnagramReport(){
@@ -2215,6 +2287,8 @@
     document.getElementById("anagramHistoryClearBtn").disabled = false;
     anagramHistoryList.querySelectorAll(".anagram-history-actions button").forEach(button => { button.disabled = false; });
     anagramAddBtn.disabled = false;
+    anagramSaveAllBtn.disabled = false;
+    anagramDataBtn.disabled = false;
     anagramRollBtn.disabled = false;
     anagramRollBtn.textContent = "ガチャを回す";
     anagramInputs.querySelectorAll("input").forEach(input => input.disabled = false);
@@ -2230,11 +2304,20 @@
     anagramError.textContent = "";
   }
 
-  // ダイスの設定は結果履歴とは別にブラウザへ保存する。
+  // 抽選履歴とは独立したダイス設定。既存の保存キーを継続して利用する。
   const anagramDiceKey = "ypp-anagram-dice-v1";
-  function saveAnagramDice(){
-    const characters = Array.from(anagramInputs.querySelectorAll(".anagram-field input"), input => input.value);
-    try { localStorage.setItem(anagramDiceKey, JSON.stringify(characters)); } catch (error) {}
+  const anagramCurrentPlayerKey = "ypp-anagram-current-player-v1";
+  const anagramSaveAllBtn = document.getElementById("anagramSaveAllBtn");
+  const anagramSaveFeedback = document.getElementById("anagramSaveFeedback");
+  const anagramDataBtn = document.getElementById("anagramDataBtn");
+  const anagramDataDialog = document.getElementById("anagramDataDialog");
+  const anagramDataContent = document.getElementById("anagramDataContent");
+  let anagramDiceDirty = false;
+
+  function markAnagramDiceDirty(){
+    anagramDiceDirty = true;
+    anagramSaveFeedback.dataset.state = "dirty";
+    anagramSaveFeedback.textContent = "未保存の変更があります。「全設定保存」で確定してください。";
   }
   function renumberAnagramDice(){
     Array.from(anagramInputs.children).forEach((field, index) => {
@@ -2244,7 +2327,7 @@
       label.htmlFor = "anagramChar" + number;
       label.textContent = "ダイス" + number;
       input.id = label.htmlFor;
-      field.querySelector(".anagram-field-edit").setAttribute("aria-label", "ダイス" + number + "の文字を" + (input.readOnly ? "編集" : "保存"));
+      field.querySelector(".anagram-field-edit").setAttribute("aria-label", "ダイス" + number + "の文字を編集");
       field.querySelector(".anagram-field-delete").setAttribute("aria-label", "ダイス" + number + "を削除");
     });
   }
@@ -2253,7 +2336,7 @@
     const count = inputs.filter(input => input.value.trim() !== "").length;
     anagramStatus.textContent = !inputs.length ? "＋でダイスを追加してください" : count ? count + "面のダイスを " + count + "回ふる" : "文字を入力してください";
   }
-  function addAnagramField(focus = false, character = "", persist = true){
+  function addAnagramField(focus = false, character = "", dirty = true){
     const field = document.createElement("div");
     field.className = "anagram-field";
     const label = document.createElement("label");
@@ -2266,46 +2349,27 @@
     input.addEventListener("input", () => {
       if (anagramRolling) return;
       clearAnagramResult();
-      saveAnagramDice();
+      markAnagramDiceDirty();
       updateAnagramStatus();
     });
-
     const actions = document.createElement("div");
     actions.className = "anagram-field-actions";
     const editBtn = document.createElement("button");
     editBtn.type = "button";
     editBtn.className = "tool-btn anagram-field-edit";
-    editBtn.textContent = input.readOnly ? "編集" : "保存";
-    editBtn.addEventListener("click", () => {
-      if (anagramRolling) return;
-      if (input.readOnly){
-        input.readOnly = false;
-        editBtn.textContent = "保存";
-        renumberAnagramDice();
-        input.focus();
-        input.select();
-        return;
-      }
-      const value = input.value.trim();
-      if (value && Array.from(anagramSegmenter.segment(value)).length !== 1){
-        const number = Array.from(anagramInputs.children).indexOf(field) + 1;
-        anagramError.textContent = "ダイス" + number + "には1文字だけ入力してください。";
-        anagramError.hidden = false;
-        input.focus();
-        return;
-      }
-      input.value = value;
-      input.readOnly = true;
-      editBtn.textContent = "編集";
-      clearAnagramResult();
-      saveAnagramDice();
-      renumberAnagramDice();
-      updateAnagramStatus();
-    });
+    editBtn.textContent = "編集";
     const deleteBtn = document.createElement("button");
     deleteBtn.type = "button";
     deleteBtn.className = "tool-btn anagram-field-delete";
     deleteBtn.textContent = "削除";
+    deleteBtn.hidden = true;
+    editBtn.addEventListener("click", () => {
+      if (anagramRolling) return;
+      input.readOnly = false;
+      deleteBtn.hidden = false;
+      input.focus();
+      input.select();
+    });
     deleteBtn.addEventListener("click", () => {
       if (anagramRolling) return;
       const number = Array.from(anagramInputs.children).indexOf(field) + 1;
@@ -2314,41 +2378,236 @@
       clearAnagramResult();
       field.remove();
       renumberAnagramDice();
-      saveAnagramDice();
+      markAnagramDiceDirty();
       updateAnagramStatus();
     });
     actions.append(editBtn, deleteBtn);
     field.append(label, input, actions);
     anagramInputs.appendChild(field);
     renumberAnagramDice();
-    if (persist){
+    if (dirty){
       clearAnagramResult();
-      saveAnagramDice();
+      markAnagramDiceDirty();
     }
     updateAnagramStatus();
     if (focus) input.focus();
   }
-
-  // 保存済みのダイス一覧を復元する（空配列は「すべて削除」の状態）。
   let savedAnagramDice = null;
   try {
     const rawDice = localStorage.getItem(anagramDiceKey);
     if (rawDice !== null){
-      const parsedDice = JSON.parse(rawDice);
-      if (Array.isArray(parsedDice)){
-        savedAnagramDice = parsedDice.filter(character => typeof character === "string").slice(0, 200);
+      const parsed = JSON.parse(rawDice);
+      if (Array.isArray(parsed)){
+        savedAnagramDice = parsed.filter(character => typeof character === "string").slice(0,200);
       }
     }
   } catch (error) {}
   if (savedAnagramDice === null){
-    addAnagramField();
+    addAnagramField(false, "", false);
+    anagramSaveFeedback.textContent = "全設定保存すると、再読み込み後も設定を復元できます。";
   } else {
     savedAnagramDice.forEach(character => addAnagramField(false, character, false));
     updateAnagramStatus();
+    anagramSaveFeedback.dataset.state = "saved";
+    anagramSaveFeedback.textContent = "ブラウザに保存されたダイス設定を読み込みました。";
   }
+  try {
+    const storedPlayerName = localStorage.getItem(anagramCurrentPlayerKey);
+    if (storedPlayerName !== null){
+      anagramPlayerName.value = storedPlayerName;
+      anagramPlayerSelect.value = anagramPlayers.includes(storedPlayerName) ? storedPlayerName : "";
+    }
+  } catch (error) {}
   anagramAddBtn.addEventListener("click", () => {
     if (!anagramRolling) addAnagramField(true);
   });
+
+  function downloadAnagramBackup(characters, playerName){
+    const data = {
+      format: "ypp-anagram-gacha-backup",
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      settings: { diceCharacters: characters, currentPlayerName: playerName },
+      players: anagramPlayers.slice(),
+      history: anagramHistory.slice()
+    };
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const stamp = new Date().toISOString().replace(/[-:]/g,"").replace("T","-").slice(0,15);
+    link.href = url;
+    link.download = "anagram-gacha-backup-" + stamp + ".json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
+  function saveAllAnagramSettings(){
+    if (anagramRolling) return;
+    const inputs = Array.from(anagramInputs.querySelectorAll("input"));
+    const characters = inputs.map(input => input.value.trim());
+    const invalidIndex = characters.findIndex(character => character && Array.from(anagramSegmenter.segment(character)).length !== 1);
+    if (invalidIndex !== -1){
+      anagramError.textContent = "ダイス" + (invalidIndex+1) + "には1文字だけ入力してください。";
+      anagramError.hidden = false;
+      inputs[invalidIndex].readOnly = false;
+      inputs[invalidIndex].focus();
+      return;
+    }
+    const playerName = anagramPlayerName.value.trim();
+    try {
+      localStorage.setItem(anagramDiceKey, JSON.stringify(characters));
+      localStorage.setItem(anagramCurrentPlayerKey, playerName);
+    } catch (error){
+      anagramSaveFeedback.dataset.state = "error";
+      anagramSaveFeedback.textContent = "ブラウザへの保存に失敗しました。空き容量やプライベートモードを確認してください。";
+      return;
+    }
+    inputs.forEach((input,index) => {
+      input.value = characters[index];
+      input.readOnly = true;
+    });
+    anagramInputs.querySelectorAll(".anagram-field-delete").forEach(button => { button.hidden = true; });
+    anagramDiceDirty = false;
+    anagramError.hidden = true;
+    anagramSaveFeedback.dataset.state = "saved";
+    anagramSaveFeedback.textContent = "全設定をブラウザに保存しました。";
+    if (window.confirm("ブラウザに全設定を保存しました。抽選履歴と名前を含むバックアップデータをダウンロードしますか？")){
+      try {
+        downloadAnagramBackup(characters,playerName);
+      } catch (error) {
+        anagramSaveFeedback.dataset.state = "error";
+        anagramSaveFeedback.textContent = "ブラウザへの保存は完了しましたが、ダウンロードを開始できませんでした。";
+      }
+    }
+  }
+  anagramSaveAllBtn.addEventListener("click",saveAllAnagramSettings);
+
+  // 現在の有効文字で作れるユニークな結果は、異なる文字数 ^ 抽選回数。
+  // 毎回復元抽選なので並び順が異なる結果は別、重複文字は同一パターンとして扱う。
+  function getAnagramCompletionStats(){
+    const characters = Array.from(anagramInputs.querySelectorAll("input"),input => input.value.trim()).filter(Boolean);
+    const invalidIndex = characters.findIndex(character => Array.from(anagramSegmenter.segment(character)).length !== 1);
+    if (invalidIndex !== -1) return { error:"ダイスには1つにつき1文字を設定してください。" };
+    if (!characters.length) return { error:"ダイスに文字を入力するとコンプリート率が表示されます。" };
+    const allowed = new Set(characters);
+    const possible = BigInt(allowed.size) ** BigInt(characters.length);
+    const collected = new Set();
+    const perPlayer = new Map();
+    let matchingDraws = 0;
+    anagramHistory.forEach(item => {
+      if (typeof item.word !== "string") return;
+      const symbols = Array.from(anagramSegmenter.segment(item.word),part=>part.segment);
+      if (symbols.length !== characters.length || !symbols.every(character=>allowed.has(character))) return;
+      matchingDraws++;
+      collected.add(item.word);
+      const name = typeof item.name === "string" && item.name.trim() ? item.name.trim() : "名前未設定";
+      if (!perPlayer.has(name)) perPlayer.set(name,{name,draws:0,patterns:new Set()});
+      const info = perPlayer.get(name);
+      info.draws++;
+      info.patterns.add(item.word);
+    });
+    const leaderboard = Array.from(perPlayer.values(),entry=>({
+      name:entry.name,draws:entry.draws,patterns:entry.patterns.size
+    })).sort((a,b)=>b.patterns-a.patterns || b.draws-a.draws || a.name.localeCompare(b.name,"ja"));
+    leaderboard.forEach((entry,index)=>{
+      entry.rank = index > 0 && entry.patterns === leaderboard[index-1].patterns ? leaderboard[index-1].rank : index+1;
+    });
+    return {
+      dice:characters.length, distinctLetters:allowed.size, possible, completed:collected.size,
+      matchingDraws,leaderboard
+    };
+  }
+  function addAnagramDataText(tag,className,text){
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    el.textContent = String(text);
+    return el;
+  }
+  function makeAnagramDataMetric(title,value,detail){
+    const card = addAnagramDataText("div","anagram-data-metric","");
+    card.append(
+      addAnagramDataText("p","anagram-data-metric-label",title),
+      addAnagramDataText("p","anagram-data-metric-value",value),
+      addAnagramDataText("p","anagram-data-metric-detail",detail)
+    );
+    return card;
+  }
+  function renderAnagramData(){
+    anagramDataContent.replaceChildren();
+    const result = getAnagramCompletionStats();
+    if (result.error){
+      anagramDataContent.appendChild(addAnagramDataText("div","anagram-data-empty",result.error));
+      return;
+    }
+    const num = value => value.toLocaleString("ja-JP");
+    const percentage = (completed,possible) => Number(BigInt(completed)*10000n/possible)/100;
+    const progress = percentage(result.completed,result.possible);
+    const hero = addAnagramDataText("section","anagram-data-hero","");
+    hero.append(
+      addAnagramDataText("p","anagram-data-hero-label","TOTAL COMPLETION"),
+      addAnagramDataText("div","anagram-data-percent",progress.toFixed(2) + "% 完了")
+    );
+    const track = addAnagramDataText("div","anagram-data-track","");
+    track.setAttribute("role","progressbar");
+    track.setAttribute("aria-label","全パターンの達成率");
+    track.setAttribute("aria-valuemin","0");
+    track.setAttribute("aria-valuemax","100");
+    track.setAttribute("aria-valuenow",String(progress));
+    const fill = addAnagramDataText("div","anagram-data-fill","");
+    fill.style.width = Math.min(100,progress) + "%";
+    track.appendChild(fill);
+    hero.appendChild(track);
+    hero.appendChild(addAnagramDataText("div","anagram-data-ratio",num(result.completed)+" / "+num(result.possible)+" パターン"));
+    const metrics=addAnagramDataText("div","anagram-data-metrics","");
+    metrics.append(
+      makeAnagramDataMetric("現在のダイス",num(result.dice)+" 個","空欄を除く"),
+      makeAnagramDataMetric("使用している文字",num(result.distinctLetters)+" 種類","重複は1種類として計算"),
+      makeAnagramDataMetric("対象の抽選回数",num(result.matchingDraws)+" 回","現在の文字から作れる結果のみ")
+    );
+    const header=addAnagramDataText("div","anagram-data-section-heading","");
+    header.append(
+      addAnagramDataText("h3","","🏆 プレイヤーランキング"),
+      addAnagramDataText("p","","集めた異なるパターン数で順位を決定")
+    );
+    anagramDataContent.append(hero,metrics,header);
+    if (!result.leaderboard.length){
+      anagramDataContent.appendChild(addAnagramDataText("div","anagram-data-empty","まだ現在のダイスに一致する抽選履歴がありません。ガチャを回すとここに表示されます。"));
+    } else {
+      const list=addAnagramDataText("ol","anagram-data-ranks","");
+      result.leaderboard.forEach(entry=>{
+        const row=addAnagramDataText("li","anagram-data-rank","");
+        row.dataset.rank=String(entry.rank);
+        const marker=entry.rank===1?"🥇":entry.rank===2?"🥈":entry.rank===3?"🥉":"";
+        row.appendChild(addAnagramDataText("div","anagram-data-rank-number",marker || (entry.rank+"位")));
+        const info=addAnagramDataText("div","anagram-data-rank-name-area","");
+        info.appendChild(addAnagramDataText("p","anagram-data-rank-name",entry.name));
+        const miniTrack=addAnagramDataText("div","anagram-data-mini-track","");
+        const miniFill=addAnagramDataText("div","anagram-data-mini-fill","");
+        miniFill.style.width=Math.min(100,percentage(entry.patterns,result.possible))+"%";
+        miniTrack.appendChild(miniFill);
+        info.appendChild(miniTrack);
+        const stats=addAnagramDataText("div","anagram-data-rank-stats","");
+        for (const pair of [["抽選回数",entry.draws],["獲得パターン",entry.patterns]]){
+          const metric=addAnagramDataText("div","anagram-data-rank-stat","");
+          metric.append(addAnagramDataText("strong","",num(pair[1])),addAnagramDataText("small","",pair[0]));
+          stats.appendChild(metric);
+        }
+        row.append(info,stats);
+        list.appendChild(row);
+      });
+      anagramDataContent.appendChild(list);
+    }
+    anagramDataContent.appendChild(addAnagramDataText(
+      "p","anagram-data-note",
+      "集計対象：現在の" + result.dice + "文字から生成可能な結果。抽選は毎回文字を戻して引く方式のため、全パターンは" + result.distinctLetters + "^" + result.dice + "通りです。同じ結果を何度引いても達成は1パターンとします。各プレイヤーの順位は獲得パターン数順で、同数は同順位です。"
+    ));
+  }
+  anagramDataBtn.addEventListener("click", () => {
+    renderAnagramData();
+    anagramDataDialog.showModal();
+  });
+  document.getElementById("anagramDataCloseBtn").addEventListener("click",()=>anagramDataDialog.close());
 
   document.getElementById("anagramOpenBtn").addEventListener("click", () => {
     siteMenuPanel.classList.remove("open");
@@ -2359,7 +2618,7 @@
     anagramView.classList.remove("open");
   });
   document.getElementById("anagramResetBtn").addEventListener("click", () => {
-    if (!window.confirm("保存したダイスの文字と入力欄をリセットしますか？抽選結果の履歴は消えません。")) return;
+    if (!window.confirm("表示中のダイス設定をリセットしますか？抽選履歴は削除されません。保存データにも反映する場合は「全設定保存」を押してください。")) return;
     clearAnagramResult();
     anagramInputs.replaceChildren();
     addAnagramField(true);
@@ -2391,11 +2650,10 @@
       return;
     }
     anagramRolling = true;
-    // 抽選開始時点の文字を確定させ、実行中の編集・削除を防ぐ。
+    // 抽選開始時点の文字を固定。設定の永続保存は「全設定保存」でのみ行う。
     inputs.forEach(input => { input.readOnly = true; });
-    anagramInputs.querySelectorAll(".anagram-field-edit").forEach(button => { button.textContent = "編集"; });
+    anagramInputs.querySelectorAll(".anagram-field-delete").forEach(button => { button.hidden = true; });
     renumberAnagramDice();
-    saveAnagramDice();
     anagramEditingItem = null;
     renderAnagramHistory();
     anagramPlayerName.disabled = true;
@@ -2403,6 +2661,8 @@
     anagramReportOpenBtn.disabled = true;
     document.getElementById("anagramHistoryClearBtn").disabled = true;
     anagramAddBtn.disabled = true;
+    anagramSaveAllBtn.disabled = true;
+    anagramDataBtn.disabled = true;
     anagramRollBtn.disabled = true;
     anagramRollBtn.textContent = "抽選中…";
     inputs.forEach(input => input.disabled = true);
