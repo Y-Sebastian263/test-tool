@@ -529,6 +529,48 @@
   .anagram-batch-result { min-width:75px; max-width:180px; padding:12px 13px; border:1px solid var(--line); border-radius:12px; background:var(--bg2); text-align:center; }
   .anagram-batch-result-word { display:block; font-weight:700; font-size:17px; overflow-wrap:anywhere; }
   .anagram-batch-result-index { display:block; color:var(--muted); font-size:10px; margin-top:6px; }
+  /* Gold / silver / bronze exact-match jackpots */
+  [data-jackpot="gold"] { --jackpot-line:#eabf50; --jackpot-shine:#fff0a7; --jackpot-glow:rgba(248,188,55,.38); --jackpot-tint:rgba(121,75,7,.47); }
+  [data-jackpot="silver"] { --jackpot-line:#c2daeb; --jackpot-shine:#f8fdff; --jackpot-glow:rgba(172,217,250,.33); --jackpot-tint:rgba(52,85,113,.47); }
+  [data-jackpot="bronze"] { --jackpot-line:#d88b52; --jackpot-shine:#ffdaac; --jackpot-glow:rgba(213,120,65,.34); --jackpot-tint:rgba(104,49,25,.5); }
+  .anagram-jackpot { border:2px solid var(--jackpot-line)!important; color:var(--jackpot-shine)!important; background:linear-gradient(130deg,var(--jackpot-tint),rgba(11,25,51,.97))!important; box-shadow:0 0 0 1px var(--jackpot-glow),0 0 24px var(--jackpot-glow),inset 0 0 17px var(--jackpot-glow); }
+  .anagram-jackpot-hit { animation:anagramJackpotPulse 1.35s ease-in-out 3; }
+  .anagram-jackpot-reveal { width:min(430px,90vw); min-height:205px; padding:24px; border-radius:24px; display:flex; flex-direction:column; gap:15px; align-items:center; justify-content:center; text-align:center; overflow-wrap:anywhere; animation:anagramJackpotReveal .6s cubic-bezier(.12,.78,.24,1.1) both,anagramJackpotPulse 1.5s ease-in-out .6s infinite; }
+  .anagram-jackpot-reveal-label { font-size:clamp(17px,4vw,25px); font-weight:800; letter-spacing:.1em; text-shadow:0 0 22px var(--jackpot-glow); }
+  .anagram-jackpot-reveal-word { font-size:clamp(38px,9vw,69px); line-height:1.25; font-weight:800; text-shadow:0 0 30px var(--jackpot-glow); }
+  .anagram-popup[data-jackpot="gold"], .anagram-popup[data-jackpot="silver"], .anagram-popup[data-jackpot="bronze"] { background:radial-gradient(circle at center,var(--jackpot-glow) 0%,transparent 70%),rgba(5,13,28,.94); }
+  .anagram-jackpot-badges { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:8px; max-width:96%; }
+  .anagram-jackpot-badges[hidden] { display:none; }
+  .anagram-jackpot-badge { display:inline-flex; align-items:center; padding:5px 11px; border:1px solid var(--jackpot-line); border-radius:999px; background:var(--jackpot-tint); color:var(--jackpot-shine); font-size:12px; font-weight:700; letter-spacing:.03em; white-space:nowrap; }
+  .anagram-word.anagram-jackpot { padding:14px 28px; border-radius:19px; }
+  .anagram-history-item[data-jackpot] { border-color:var(--jackpot-line); box-shadow:inset 3px 0 0 var(--jackpot-line); }
+  .anagram-history-jackpot-label { display:inline-flex; vertical-align:middle; margin:0 0 7px; }
+  .anagram-jackpot-settings { margin-top:27px; padding:20px; border:1px solid rgba(255,255,255,.14); border-radius:20px; background:rgba(4,17,37,.45); }
+  .anagram-jackpot-settings h3 { margin:0 0 6px; font-size:20px; color:#fff; }
+  .anagram-jackpot-settings p { margin:0 0 15px; font-size:12px; color:#acc8df; line-height:1.7; }
+  .anagram-jackpot-form { display:grid; grid-template-columns:minmax(0,1fr) 135px auto auto; gap:9px; align-items:center; }
+  .anagram-jackpot-form input, .anagram-jackpot-form select { width:100%; min-width:0; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.23); background:#0c2142; color:#fff; font:inherit; }
+  .anagram-jackpot-form input:focus-visible, .anagram-jackpot-form select:focus-visible { outline:2px solid #78c7ff; outline-offset:2px; }
+  .anagram-jackpot-form .tool-btn { padding:10px 16px; font-size:13px; white-space:nowrap; }
+  .anagram-jackpot-feedback { min-height:18px; margin:10px 0!important; }
+  .anagram-jackpot-list { list-style:none; margin:12px 0 0; padding:0; display:flex; flex-direction:column; gap:9px; }
+  .anagram-jackpot-target { display:flex; align-items:center; gap:10px; padding:11px 13px; border:1px solid var(--jackpot-line); border-radius:14px; background:linear-gradient(110deg,var(--jackpot-tint),rgba(15,32,56,.66)); min-width:0; }
+  .anagram-jackpot-target-text { font-weight:700; font-size:16px; color:var(--jackpot-shine); overflow-wrap:anywhere; flex:1; min-width:0; }
+  .anagram-jackpot-target-info { color:#b7c9d8; font-size:11px; text-align:right; flex-shrink:0; }
+  .anagram-jackpot-target-actions { display:flex; gap:6px; flex-shrink:0; }
+  .anagram-jackpot-target-actions .tool-btn { padding:6px 10px; font-size:12px; }
+  .anagram-jackpot-empty { padding:15px; border:1px dashed rgba(255,255,255,.2); border-radius:12px; text-align:center; color:#a8c2d9; font-size:13px; }
+  @keyframes anagramJackpotPulse { 50% { box-shadow:0 0 0 2px var(--jackpot-glow),0 0 55px var(--jackpot-glow),inset 0 0 30px var(--jackpot-glow); } }
+  @keyframes anagramJackpotReveal { from { opacity:0; transform:scale(.55) rotate(-4deg); filter:brightness(1.8); } to { opacity:1; transform:scale(1) rotate(0); filter:brightness(1); } }
+  @media (max-width:640px) {
+    .anagram-jackpot-form { grid-template-columns:minmax(0,1fr) 115px; }
+    .anagram-jackpot-form button { width:100%; }
+    .anagram-jackpot-target { flex-wrap:wrap; }
+    .anagram-jackpot-target-info { margin-left:auto; }
+  }
+  @media (prefers-reduced-motion:reduce) {
+    .anagram-jackpot-hit, .anagram-jackpot-reveal { animation:none!important; }
+  }
   .anagram-save-feedback { margin:0; min-height:18px; color:var(--muted); font-size:12px; text-align:center; }
   .anagram-save-feedback[data-state="dirty"] { color:#ffd595; }
   .anagram-save-feedback[data-state="saved"] { color:#a7e6ca; }
@@ -1719,6 +1761,7 @@
     <p class="anagram-error" id="anagramError" role="alert" hidden></p>
     <div class="dice-results anagram-results" id="anagramResults"></div>
     <p class="dice-total anagram-word" id="anagramWord" aria-live="polite"></p>
+    <div class="anagram-jackpot-badges" id="anagramJackpotBadges" aria-live="polite" hidden></div>
     <section class="anagram-history" aria-labelledby="anagramHistoryHeading">
       <div class="anagram-history-header">
         <h2 id="anagramHistoryHeading">履歴</h2>
@@ -1746,6 +1789,23 @@
       <button type="button" id="anagramDataCloseBtn" class="tool-btn anagram-data-close">閉じる</button>
     </div>
     <div id="anagramDataContent" aria-live="polite"></div>
+    <section class="anagram-jackpot-settings" aria-labelledby="anagramJackpotTitle">
+      <span class="anagram-data-eyebrow">WINNING COMBINATIONS</span>
+      <h3 id="anagramJackpotTitle">大当たり設定</h3>
+      <p>当たりにする文字列と枠の色を登録します。抽選結果が完全一致すると、金・銀・銅の演出が発生します。設定はこのブラウザに保存されます。</p>
+      <form id="anagramJackpotForm" class="anagram-jackpot-form">
+        <input type="text" id="anagramJackpotWordInput" maxlength="100" placeholder="当たり文字列を入力" aria-label="大当たり文字列" required autocomplete="off">
+        <select id="anagramJackpotTierSelect" aria-label="当たりの枠の種類">
+          <option value="gold">🥇 金枠</option>
+          <option value="silver">🥈 銀枠</option>
+          <option value="bronze">🥉 銅枠</option>
+        </select>
+        <button type="submit" id="anagramJackpotSaveBtn" class="tool-btn primary">登録</button>
+        <button type="button" id="anagramJackpotCancelBtn" class="tool-btn" hidden>取消</button>
+      </form>
+      <p class="anagram-jackpot-feedback" id="anagramJackpotFeedback" role="status" aria-live="polite"></p>
+      <ul class="anagram-jackpot-list" id="anagramJackpotList"></ul>
+    </section>
   </div>
 </dialog>
 <dialog class="anagram-report" id="anagramReportDialog" aria-labelledby="anagramReportTitle">
@@ -2048,6 +2108,7 @@
   const anagramError = document.getElementById("anagramError");
   const anagramResults = document.getElementById("anagramResults");
   const anagramWord = document.getElementById("anagramWord");
+  const anagramJackpotBadges = document.getElementById("anagramJackpotBadges");
   const anagramRollBtn = document.getElementById("anagramRollBtn");
   const anagramBatchCountInput = document.getElementById("anagramBatchCountInput");
   const anagramBatchRollBtn = document.getElementById("anagramBatchRollBtn");
@@ -2068,6 +2129,40 @@
   const anagramHistoryList = document.getElementById("anagramHistoryList");
   const anagramHistoryEmpty = document.getElementById("anagramHistoryEmpty");
   const anagramHistoryKey = "ypp-anagram-history-v1";
+  const anagramJackpotsKey = "ypp-anagram-jackpots-v1";
+  const anagramJackpotForm = document.getElementById("anagramJackpotForm");
+  const anagramJackpotWordInput = document.getElementById("anagramJackpotWordInput");
+  const anagramJackpotTierSelect = document.getElementById("anagramJackpotTierSelect");
+  const anagramJackpotSaveBtn = document.getElementById("anagramJackpotSaveBtn");
+  const anagramJackpotCancelBtn = document.getElementById("anagramJackpotCancelBtn");
+  const anagramJackpotFeedback = document.getElementById("anagramJackpotFeedback");
+  const anagramJackpotList = document.getElementById("anagramJackpotList");
+  const anagramJackpotTiers = {gold:"🥇 金枠",silver:"🥈 銀枠",bronze:"🥉 銅枠"};
+  let anagramJackpots = [];
+  try {
+    const storedJackpots = JSON.parse(localStorage.getItem(anagramJackpotsKey) || "[]");
+    if (Array.isArray(storedJackpots)){
+      const usedWords = new Set();
+      storedJackpots.forEach(item => {
+        if (!item || typeof item.word !== "string" || !Object.hasOwn(anagramJackpotTiers,item.tier)) return;
+        const word = item.word.trim().normalize("NFC");
+        if (!word || word.length > 100 || usedWords.has(word) || anagramJackpots.length >= 300) return;
+        usedWords.add(word);
+        anagramJackpots.push({word,tier:item.tier});
+      });
+    }
+  } catch (error) {}
+  function getAnagramJackpot(word){
+    if (typeof word !== "string") return null;
+    const normalized = word.normalize("NFC");
+    return anagramJackpots.find(item => item.word === normalized) || null;
+  }
+  function saveAnagramJackpots(){
+    try {
+      localStorage.setItem(anagramJackpotsKey,JSON.stringify(anagramJackpots));
+      return true;
+    } catch (error) { return false; }
+  }
   const anagramPlayerName = document.getElementById("anagramPlayerName");
   const anagramPlayerSelect = document.getElementById("anagramPlayerSelect");
   const anagramReportDialog = document.getElementById("anagramReportDialog");
@@ -2190,6 +2285,15 @@
       const word = document.createElement("p");
       word.className = "anagram-history-word";
       word.textContent = item.word;
+      const winning = getAnagramJackpot(item.word);
+      if (winning) {
+        row.dataset.jackpot = winning.tier;
+        const winBadge = document.createElement("span");
+        winBadge.className = "anagram-jackpot-badge anagram-history-jackpot-label";
+        winBadge.dataset.jackpot = winning.tier;
+        winBadge.textContent = anagramJackpotTiers[winning.tier] + " 大当たり";
+        details.appendChild(winBadge);
+      }
       const meta = document.createElement("p");
       meta.className = "anagram-history-meta";
       const name = typeof item.name === "string" && item.name.trim() ? item.name : "名前未設定";
@@ -2353,12 +2457,17 @@
     anagramInputs.querySelectorAll(".anagram-field-actions button").forEach(button => { button.disabled = false; });
     anagramPopup.hidden = true;
     anagramPopup.setAttribute("aria-hidden","true");
+    anagramPopup.removeAttribute("data-jackpot");
   }
 
   function clearAnagramResult(){
     stopAnagramRoll();
     anagramResults.replaceChildren();
     anagramWord.textContent = "";
+    anagramWord.classList.remove("anagram-jackpot","anagram-jackpot-hit");
+    anagramWord.removeAttribute("data-jackpot");
+    anagramJackpotBadges.replaceChildren();
+    anagramJackpotBadges.hidden = true;
     anagramError.hidden = true;
     anagramError.textContent = "";
     anagramBatchStatus.textContent = "";
@@ -2529,6 +2638,7 @@
       exportedAt: new Date().toISOString(),
       settings: { diceCharacters: characters, currentPlayerName: playerName, batchCount, batchMode: anagramBatchMode },
       players: anagramPlayers.slice(),
+      jackpots: anagramJackpots.map(item => ({word:item.word,tier:item.tier})),
       history: anagramHistory.slice()
     };
     const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json;charset=utf-8"});
@@ -2567,6 +2677,7 @@
       localStorage.setItem(anagramCurrentPlayerKey, playerName);
       localStorage.setItem(anagramBatchCountKey, String(batchCount));
       localStorage.setItem(anagramBatchModeKey, anagramBatchMode);
+      localStorage.setItem(anagramJackpotsKey,JSON.stringify(anagramJackpots));
     } catch (error){
       anagramSaveFeedback.dataset.state = "error";
       anagramSaveFeedback.textContent = "ブラウザへの保存に失敗しました。空き容量やプライベートモードを確認してください。";
@@ -2591,6 +2702,173 @@
     }
   }
   anagramSaveAllBtn.addEventListener("click",saveAllAnagramSettings);
+
+  // 金・銀・銅の当たりを編集し、ブラウザに即時保存する。
+  // メイン画面の「全設定保存」のJSONバックアップにも同じ設定を含める。
+  let anagramEditingJackpot = null;
+  function resetAnagramJackpotForm(){
+    anagramEditingJackpot = null;
+    anagramJackpotForm.reset();
+    anagramJackpotWordInput.value = "";
+    anagramJackpotTierSelect.value = "gold";
+    anagramJackpotSaveBtn.textContent = "登録";
+    anagramJackpotCancelBtn.hidden = true;
+  }
+  function renderAnagramJackpots(){
+    anagramJackpotList.replaceChildren();
+    if (!anagramJackpots.length){
+      const empty = document.createElement("li");
+      empty.className = "anagram-jackpot-empty";
+      empty.textContent = "大当たりはまだ登録されていません。";
+      anagramJackpotList.appendChild(empty);
+      return;
+    }
+    const currentCharacters = Array.from(anagramInputs.querySelectorAll("input"),item => item.value.trim()).filter(Boolean);
+    const availableCharacters = new Set(currentCharacters.map(character => character.normalize("NFC")));
+    const timesHit = new Map();
+    anagramHistory.forEach(record => {
+      if (typeof record.word !== "string") return;
+      const word = record.word.normalize("NFC");
+      timesHit.set(word,(timesHit.get(word) || 0) + 1);
+    });
+    anagramJackpots.forEach((item,index) => {
+      const row = document.createElement("li");
+      row.className = "anagram-jackpot-target";
+      row.dataset.jackpot = item.tier;
+      const label = document.createElement("span");
+      label.className = "anagram-jackpot-badge";
+      label.dataset.jackpot = item.tier;
+      label.textContent = anagramJackpotTiers[item.tier];
+      const word = document.createElement("strong");
+      word.className = "anagram-jackpot-target-text";
+      word.textContent = item.word;
+      const count = document.createElement("span");
+      count.className = "anagram-jackpot-target-info";
+      const characters = Array.from(anagramSegmenter.segment(item.word),part=>part.segment);
+      const possible = characters.length === currentCharacters.length && characters.every(character => availableCharacters.has(character.normalize("NFC")));
+      count.textContent = "当選 " + (timesHit.get(item.word) || 0).toLocaleString("ja-JP") + "回" +
+        (possible ? "" : " · 現在のダイスでは対象外");
+      const actions = document.createElement("div");
+      actions.className = "anagram-jackpot-target-actions";
+      const edit = document.createElement("button");
+      edit.type = "button";
+      edit.className = "tool-btn";
+      edit.textContent = "編集";
+      edit.setAttribute("aria-label",item.word+"の大当たり設定を編集");
+      edit.addEventListener("click", () => {
+        anagramEditingJackpot = item;
+        anagramJackpotWordInput.value = item.word;
+        anagramJackpotTierSelect.value = item.tier;
+        anagramJackpotSaveBtn.textContent = "変更を保存";
+        anagramJackpotCancelBtn.hidden = false;
+        anagramJackpotFeedback.textContent = "「" + item.word + "」を編集しています。";
+        anagramJackpotWordInput.focus();
+      });
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "tool-btn";
+      remove.textContent = "削除";
+      remove.setAttribute("aria-label",item.word+"の大当たり設定を削除");
+      remove.addEventListener("click", () => {
+        if (anagramRolling || anagramJackpots[index] !== item) return;
+        if (!window.confirm("大当たり「" + item.word + "」（" + anagramJackpotTiers[item.tier] + "）を削除しますか？")) return;
+        anagramJackpots.splice(index,1);
+        resetAnagramJackpotForm();
+        anagramJackpotFeedback.textContent = saveAnagramJackpots()
+          ? "大当たり設定を削除して保存しました。" : "変更しましたがブラウザへの保存に失敗しました。";
+        renderAnagramJackpots();
+        renderAnagramHistory();
+        if (anagramReportDialog.open) renderAnagramReport();
+      });
+      actions.append(edit,remove);
+      row.append(label,word,count,actions);
+      anagramJackpotList.appendChild(row);
+    });
+  }
+  anagramJackpotCancelBtn.addEventListener("click", () => {
+    resetAnagramJackpotForm();
+    anagramJackpotFeedback.textContent = "";
+  });
+  anagramJackpotForm.addEventListener("submit", event => {
+    event.preventDefault();
+    if (anagramRolling) return;
+    const word = anagramJackpotWordInput.value.trim().normalize("NFC");
+    const tier = anagramJackpotTierSelect.value;
+    if (!word || word.length > 100 || !Object.hasOwn(anagramJackpotTiers,tier)){
+      anagramJackpotFeedback.textContent = "1〜100文字の当たり文字列と枠の種類を指定してください。";
+      anagramJackpotWordInput.focus();
+      return;
+    }
+    const existing = anagramJackpots.find(item => item.word === word && item !== anagramEditingJackpot);
+    if (existing && anagramEditingJackpot){
+      anagramJackpotFeedback.textContent = "同じ文字列がすでに登録されています。";
+      anagramJackpotWordInput.focus();
+      return;
+    }
+    if (anagramEditingJackpot){
+      anagramEditingJackpot.word = word;
+      anagramEditingJackpot.tier = tier;
+    } else if (existing){
+      existing.tier = tier;
+    } else {
+      if (anagramJackpots.length >= 300){
+        anagramJackpotFeedback.textContent = "大当たり設定は最大300件まで登録できます。";
+        return;
+      }
+      anagramJackpots.push({word,tier});
+    }
+    const ok = saveAnagramJackpots();
+    resetAnagramJackpotForm();
+    anagramJackpotFeedback.textContent = ok
+      ? "大当たりを登録・保存しました。次の抽選から反映されます。"
+      : "設定は画面に反映されましたがブラウザへの保存に失敗しました。";
+    renderAnagramJackpots();
+    renderAnagramHistory();
+    if (anagramReportDialog.open) renderAnagramReport();
+  });
+  function showAnagramJackpotReveal(word, winning, progressLabel){
+    const box = document.createElement("div");
+    box.className = "anagram-jackpot-reveal anagram-jackpot";
+    box.dataset.jackpot = winning.tier;
+    const title = document.createElement("span");
+    title.className = "anagram-jackpot-reveal-label";
+    title.textContent = "✦ " + anagramJackpotTiers[winning.tier] + " 大当たり ✦";
+    const value = document.createElement("strong");
+    value.className = "anagram-jackpot-reveal-word";
+    value.textContent = word;
+    box.append(title,value);
+    anagramPopupLetter.replaceChildren(box);
+    anagramPopup.dataset.jackpot = winning.tier;
+    anagramPopupProgress.textContent = progressLabel || "大当たり！";
+    anagramPopup.hidden = false;
+    anagramPopup.setAttribute("aria-hidden","false");
+  }
+  function showAnagramJackpotBadges(words, single){
+    anagramJackpotBadges.replaceChildren();
+    anagramWord.classList.remove("anagram-jackpot","anagram-jackpot-hit");
+    anagramWord.removeAttribute("data-jackpot");
+    const totals = {gold:0,silver:0,bronze:0};
+    words.forEach(word => {
+      const winning = getAnagramJackpot(word);
+      if (winning) totals[winning.tier]++;
+    });
+    for (const tier of ["gold","silver","bronze"]){
+      if (!totals[tier]) continue;
+      const badge = document.createElement("span");
+      badge.className = "anagram-jackpot-badge";
+      badge.dataset.jackpot = tier;
+      badge.textContent = anagramJackpotTiers[tier] + " 大当たり " + totals[tier] + "回";
+      anagramJackpotBadges.appendChild(badge);
+    }
+    anagramJackpotBadges.hidden = !anagramJackpotBadges.children.length;
+    if (single && words.length === 1){
+      const winning = getAnagramJackpot(words[0]);
+      if (winning){
+        anagramWord.classList.add("anagram-jackpot","anagram-jackpot-hit");
+        anagramWord.dataset.jackpot = winning.tier;
+      }
+    }
+  }
 
   // 現在の有効文字で作れるユニークな結果は、異なる文字数 ^ 抽選回数。
   // 毎回復元抽選なので並び順が異なる結果は別、重複文字は同一パターンとして扱う。
@@ -2714,6 +2992,7 @@
   }
   anagramDataBtn.addEventListener("click", () => {
     renderAnagramData();
+    renderAnagramJackpots();
     anagramDataDialog.showModal();
   });
   document.getElementById("anagramDataCloseBtn").addEventListener("click",()=>anagramDataDialog.close());
@@ -2814,16 +3093,28 @@
         if (word.length < entries.length){
           revealNext();
         } else {
-          stopAnagramRoll();
-          anagramWord.textContent = word.join("");
-          anagramHistory.unshift({ name:playerName, word:word.join(""), source:entries.map(entry => entry.character).join("・"), time:new Date().toISOString() });
-          if (!anagramPlayers.includes(playerName)) anagramPlayers.push(playerName);
-          saveAnagramPlayers();
-          renderAnagramPlayers();
-          anagramPlayerSelect.value = playerName;
-          saveAnagramHistory();
-          renderAnagramHistory();
-          anagramWord.scrollIntoView({ block:"nearest", behavior:"auto" });
+          const drawnWord = word.join("");
+          const winning = getAnagramJackpot(drawnWord);
+          function finishSingleAnagramRoll(){
+            if (!anagramRolling) return;
+            stopAnagramRoll();
+            anagramWord.textContent = drawnWord;
+            showAnagramJackpotBadges([drawnWord],true);
+            anagramHistory.unshift({ name:playerName, word:drawnWord, source:entries.map(entry => entry.character).join("・"), time:new Date().toISOString() });
+            if (!anagramPlayers.includes(playerName)) anagramPlayers.push(playerName);
+            saveAnagramPlayers();
+            renderAnagramPlayers();
+            anagramPlayerSelect.value = playerName;
+            saveAnagramHistory();
+            renderAnagramHistory();
+            anagramWord.scrollIntoView({ block:"nearest", behavior:"auto" });
+          }
+          if (winning){
+            showAnagramJackpotReveal(drawnWord,winning);
+            anagramTimer = setTimeout(finishSingleAnagramRoll,1700);
+          } else {
+            finishSingleAnagramRoll();
+          }
         }
       }, 800);
     }
@@ -2883,9 +3174,15 @@
       stopAnagramRoll();
       anagramBatchProgress.hidden = true;
       anagramResults.classList.add("anagram-batch-results");
+      showAnagramJackpotBadges(batchRecords.map(item=>item.word),false);
       recent.forEach((item,index)=>{
         const card = document.createElement("div");
         card.className = "anagram-batch-result";
+        const winning = getAnagramJackpot(item.word);
+        if (winning){
+          card.classList.add("anagram-jackpot","anagram-jackpot-hit");
+          card.dataset.jackpot = winning.tier;
+        }
         const word = document.createElement("strong");
         word.className = "anagram-batch-result-word";
         word.textContent = item.word;
@@ -2893,6 +3190,13 @@
         countLabel.className = "anagram-batch-result-index";
         countLabel.textContent = (count-index).toLocaleString("ja-JP") + "回目";
         card.append(word,countLabel);
+        if (winning){
+          const badge = document.createElement("span");
+          badge.className = "anagram-jackpot-badge";
+          badge.dataset.jackpot = winning.tier;
+          badge.textContent = anagramJackpotTiers[winning.tier];
+          card.appendChild(badge);
+        }
         anagramResults.appendChild(card);
       });
       anagramWord.textContent = count.toLocaleString("ja-JP") + "連ガチャ完了";
@@ -2945,6 +3249,7 @@
       let index = 0;
       function showNextCharacter(){
         if (!anagramRolling || skipping) return;
+        anagramPopup.removeAttribute("data-jackpot");
         const letter = document.createElement("div");
         letter.className = "anagram-popup-character";
         letter.textContent = letters[index];
@@ -2961,10 +3266,21 @@
             showNextCharacter();
           } else {
             updateBatchProgress(drawNumber);
-            if (drawNumber < count){
-              anagramTimer = setTimeout(animateNextDraw,220);
+            const winning = getAnagramJackpot(record.word);
+            const continueBatch = () => {
+              if (!anagramRolling || skipping) return;
+              anagramPopup.removeAttribute("data-jackpot");
+              if (drawNumber < count){
+                anagramTimer = setTimeout(animateNextDraw,220);
+              } else {
+                finishAnagramBatch();
+              }
+            };
+            if (winning){
+              showAnagramJackpotReveal(record.word,winning,drawNumber+" / "+count+" 回目 · 大当たり！");
+              anagramTimer = setTimeout(continueBatch,1500);
             } else {
-              finishAnagramBatch();
+              continueBatch();
             }
           }
         },650);
