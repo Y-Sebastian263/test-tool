@@ -3543,6 +3543,12 @@
       invalid.input.focus();
       return null;
     }
+    const maintError = validateAnagramMaint(anagramMaint,entries);
+    if (maintError){
+      anagramError.textContent = "メンテナンス設定：" + maintError;
+      anagramError.hidden = false;
+      return null;
+    }
     return { playerName, inputs, entries };
   }
   function lockAnagramRollControls(inputs){
@@ -3576,39 +3582,52 @@
     const setup = getValidatedAnagramRollSetup();
     if (!setup) return;
     const {playerName,inputs,entries} = setup;
+    const context = createAnagramDrawContext(playerName,entries);
+    const drawn = context.draw();
+    if (!drawn){
+      anagramError.textContent = "被り無しの候補が残っていないため抽選できません。判定範囲かダイス設定を変更してください。";
+      anagramError.hidden = false;
+      return;
+    }
+    const symbols = Array.from(anagramSegmenter.segment(drawn.word),item=>item.segment);
+    const source = entries.map(entry=>entry.character).join("・");
     lockAnagramRollControls(inputs);
-    const word = [];
+    let letterIndex = 0;
     function revealNext(){
-      const entry = entries[Math.floor(Math.random() * entries.length)];
-      word.push(entry.character);
+      const symbol = symbols[letterIndex];
+      const face = drawn.faces[letterIndex];
+      letterIndex++;
       const popupCharacter = document.createElement("div");
       popupCharacter.className = "anagram-popup-character";
-      popupCharacter.textContent = entry.character;
+      popupCharacter.textContent = symbol;
       anagramPopupLetter.replaceChildren(popupCharacter);
-      anagramPopupProgress.textContent = word.length + " / " + entries.length + "文字目";
+      anagramPopupProgress.textContent = letterIndex + " / " + entries.length + "文字目";
       anagramPopup.hidden = false;
       anagramPopup.setAttribute("aria-hidden","false");
       const badge = document.createElement("div");
       badge.className = "dice-die";
       const character = document.createElement("span");
-      character.textContent = entry.character;
+      character.textContent = symbol;
       const faceLabel = document.createElement("span");
       faceLabel.className = "anagram-face";
-      faceLabel.textContent = "ダイス" + entry.number;
+      faceLabel.textContent = "ダイス" + face;
       badge.append(character, faceLabel);
       anagramResults.appendChild(badge);
       anagramTimer = setTimeout(() => {
-        if (word.length < entries.length){
+        if (letterIndex < entries.length){
           revealNext();
         } else {
-          const drawnWord = word.join("");
+          const drawnWord = drawn.word;
           const winning = getAnagramJackpot(drawnWord);
           function finishSingleAnagramRoll(){
             if (!anagramRolling) return;
             stopAnagramRoll();
             anagramWord.textContent = drawnWord;
             showAnagramJackpotBadges([drawnWord],true);
-            anagramHistory.unshift({ name:playerName, word:drawnWord, source:entries.map(entry => entry.character).join("・"), time:new Date().toISOString() });
+            anagramHistory.unshift({
+              name:playerName, word:drawnWord, source, diceSetKey:drawn.diceSetKey,
+              pityForced:drawn.forced, time:new Date().toISOString()
+            });
             if (!anagramPlayers.includes(playerName)) anagramPlayers.push(playerName);
             saveAnagramPlayers();
             renderAnagramPlayers();
@@ -3650,27 +3669,46 @@
     if (!setup) return;
     const {playerName,inputs,entries} = setup;
     const source = entries.map(entry=>entry.character).join("・");
+    const drawContext = createAnagramDrawContext(playerName,entries);
+    if (anagramMaint.duplicates==="none" && !anagramMaint.pity && BigInt(count)>drawContext.remainingPatterns()){
+      anagramError.textContent =
+        "被り無しの残りは " + drawContext.remainingPatterns().toLocaleString("ja-JP") +
+        " パターンです。連ガチャの回数を減らすか、判定範囲を変更してください。";
+      anagramError.hidden = false;
+      return;
+    }
     const batchRecords = [];
     const selectedMode = anagramBatchMode;
     let skipping = false;
+    let exhausted = false;
     lockAnagramRollControls(inputs);
     anagramBatchProgress.hidden = false;
     anagramBatchProgressFill.style.width = "0%";
     anagramBatchStatus.textContent = count.toLocaleString("ja-JP") + "連ガチャを開始しました…";
 
     function drawAnagramRecord(){
-      const word = [];
-      for (let index=0;index<entries.length;index++){
-        word.push(entries[Math.floor(Math.random()*entries.length)].character);
-      }
-      return {name:playerName,word:word.join(""),source,time:new Date().toISOString()};
+      const result = drawContext.draw();
+      if (!result) return null;
+      return {
+        name:playerName, word:result.word, source,
+        diceSetKey:result.diceSetKey, pityForced:result.forced,
+        time:new Date().toISOString()
+      };
     }
     function updateBatchProgress(finished){
       anagramBatchProgressFill.style.width = (finished / count * 100).toFixed(2) + "%";
     }
     function finishAnagramBatch(){
       if (!anagramRolling) return;
-      // 12件の表示制限をなくし、今回の抽選結果をすべて新しい順で表示する。
+      // 途中で候補が尽きた場合でも、すでに抽選した結果は破棄しない。
+      if (!batchRecords.length){
+        stopAnagramRoll();
+        anagramBatchProgress.hidden = true;
+        anagramError.textContent = "被り無しの候補がなくなったため、抽選できませんでした。";
+        anagramError.hidden = false;
+        return;
+      }
+      const actualCount = batchRecords.length;
       const allResults = batchRecords.slice().reverse();
       const uniqueCount = new Set(batchRecords.map(item=>item.word)).size;
       anagramHistory.unshift(...allResults);
@@ -3708,11 +3746,13 @@
         }
         anagramResults.appendChild(card);
       });
-      anagramWord.textContent = count.toLocaleString("ja-JP") + "連ガチャ完了";
+      anagramWord.textContent = actualCount.toLocaleString("ja-JP") +
+        (exhausted ? "回で抽選終了" : "連ガチャ完了");
       anagramBatchStatus.textContent =
-        count.toLocaleString("ja-JP") + "回の結果を履歴に追加（今回 " +
+        actualCount.toLocaleString("ja-JP") + "回の結果を履歴に追加（今回 " +
         uniqueCount.toLocaleString("ja-JP") + "パターン）。" +
-        "全" + count.toLocaleString("ja-JP") + "件の結果を表示中。" +
+        "全" + actualCount.toLocaleString("ja-JP") + "件の結果を表示中。" +
+        (exhausted ? " 被り無しの候補が尽きたため指定回数より早く終了しました。" : "") +
         (skipping ? " 演出はスキップしました。" : "") +
         (saved ? "" : " ※ブラウザへの履歴保存に失敗しました。");
       if (anagramDataDialog.open) renderAnagramData();
@@ -3721,11 +3761,15 @@
     function processAnagramBatchFast(){
       if (!anagramRolling) return;
       const end = Math.min(count,batchRecords.length + 100);
-      while (batchRecords.length < end) batchRecords.push(drawAnagramRecord());
+      while (batchRecords.length < end){
+        const record = drawAnagramRecord();
+        if (!record){exhausted = true;break;}
+        batchRecords.push(record);
+      }
       updateBatchProgress(batchRecords.length);
       anagramBatchStatus.textContent = batchRecords.length.toLocaleString("ja-JP") +
         " / " + count.toLocaleString("ja-JP") + " 回 抽選中…";
-      if (batchRecords.length < count){
+      if (batchRecords.length < count && !exhausted){
         anagramTimer = setTimeout(processAnagramBatchFast,0);
       } else {
         finishAnagramBatch();
@@ -3752,6 +3796,11 @@
         return;
       }
       const record = drawAnagramRecord();
+      if (!record){
+        exhausted = true;
+        finishAnagramBatch();
+        return;
+      }
       batchRecords.push(record);
       const drawNumber = batchRecords.length;
       const letters = Array.from(anagramSegmenter.segment(record.word),part=>part.segment);
