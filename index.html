@@ -2930,7 +2930,7 @@
       format: "ypp-anagram-gacha-backup",
       version: 1,
       exportedAt: new Date().toISOString(),
-      settings: { diceCharacters: characters, currentPlayerName: playerName, batchCount, batchMode: anagramBatchMode },
+      settings: { diceCharacters: characters, currentPlayerName: playerName, batchCount, batchMode: anagramBatchMode, maintenance:{...anagramMaint} },
       players: anagramPlayers.slice(),
       jackpots: anagramJackpots.map(item => ({word:item.word,tier:item.tier})),
       history: anagramHistory.slice()
@@ -2972,6 +2972,7 @@
       localStorage.setItem(anagramBatchCountKey, String(batchCount));
       localStorage.setItem(anagramBatchModeKey, anagramBatchMode);
       localStorage.setItem(anagramJackpotsKey,JSON.stringify(anagramJackpots));
+      localStorage.setItem(anagramMaintKey,JSON.stringify(anagramMaint));
     } catch (error){
       anagramSaveFeedback.dataset.state = "error";
       anagramSaveFeedback.textContent = "ブラウザへの保存に失敗しました。空き容量やプライベートモードを確認してください。";
@@ -3256,6 +3257,125 @@
       event.preventDefault();
       finishAnagramJackpotTest(true);
     }
+  });
+
+  function readAnagramMaintDraft(){
+    return {
+      duplicates:anagramMaintNone.checked?"none":"allow",
+      dupScope:anagramMaintDupScope.value==="all"?"all":"player",
+      pity:anagramMaintPity.checked,
+      pityCount:Number(anagramMaintPityCount.value),
+      pityScope:anagramMaintPityScope.value==="all"?"all":"player",
+      pityTarget:anagramMaintPityTarget.value.trim().normalize("NFC")
+    };
+  }
+  function updateAnagramMaintAvailability(){
+    anagramMaintDupScope.disabled=!anagramMaintNone.checked;
+    anagramMaintPityCount.disabled=!anagramMaintPity.checked;
+    anagramMaintPityScope.disabled=!anagramMaintPity.checked;
+    anagramMaintPityTarget.disabled=!anagramMaintPity.checked;
+  }
+  function showAnagramMaintSettings(){
+    anagramMaintAllow.checked=anagramMaint.duplicates!=="none";
+    anagramMaintNone.checked=anagramMaint.duplicates==="none";
+    anagramMaintDupScope.value=anagramMaint.dupScope;
+    anagramMaintPity.checked=anagramMaint.pity;
+    anagramMaintPityCount.value=String(anagramMaint.pityCount);
+    anagramMaintPityScope.value=anagramMaint.pityScope;
+    anagramMaintPityTarget.value=anagramMaint.pityTarget;
+    updateAnagramMaintAvailability();
+    anagramMaintStatus.textContent="";
+    renderAnagramMaintOdds();
+    anagramMaintDialog.showModal();
+  }
+  function anagramPercent(p){
+    if(p.numerator<=0n)return "0%";
+    if(p.numerator>=p.denominator)return "100%";
+    const fraction=p.numerator*1000000000n/p.denominator;
+    const pct=Number(fraction)/10000000;
+    return pct>0?pct.toLocaleString("ja-JP",{maximumFractionDigits:7})+"%":"0.0000001%未満";
+  }
+  function renderAnagramMaintOdds(){
+    anagramMaintOdds.replaceChildren();
+    const appendText=(message,problem=false)=>{
+      const p=document.createElement("p");
+      if(problem)p.className="anagram-maint-error";
+      p.textContent=message;anagramMaintOdds.appendChild(p);
+    };
+    const entries=Array.from(anagramInputs.querySelectorAll("input"),(el,index)=>({character:el.value.trim(),number:index+1})).filter(e=>e.character);
+    if(!entries.length||entries.some(e=>Array.from(anagramSegmenter.segment(e.character)).length!==1)){
+      appendText("確率を確認するには有効なダイス文字を設定してください。",true);
+      return;
+    }
+    const rules=readAnagramMaintDraft();
+    const err=validateAnagramMaint(rules,entries);
+    if(err){appendText(err,true);return;}
+    const player=anagramPlayerName.value.trim();
+    if(!player&&(rules.dupScope==="player"||rules.pityScope==="player"))
+      appendText("「同じ人」を適用する場合は、ガチャ画面でプレイヤー名を入力してください。");
+    const state=createAnagramDrawContext(player,entries,rules);
+    const possible=BigInt(new Set(entries.map(e=>e.character)).size)**BigInt(entries.length);
+    appendText("現在の文字：" + entries.length+"個 ／ 全"+possible.toLocaleString("ja-JP")+"パターン");
+    if(rules.duplicates==="none"){
+      appendText("被り無し（"+(rules.dupScope==="all"?"全体":"同じ人")+"）：未出現"+
+        state.remainingPatterns().toLocaleString("ja-JP")+"パターン。");
+    } else {
+      appendText("被りあり：各文字の登録数に比例した重みで抽選します。");
+    }
+    if(rules.pity){
+      appendText("天井（"+(rules.pityScope==="all"?"全体":"同じ人")+"）：" +
+        rules.pityCount.toLocaleString("ja-JP")+"回／「"+rules.pityTarget+"」確定。現在のカウント："+
+        state.getPityCount().toLocaleString("ja-JP")+"回、残り"+
+        Math.max(1,rules.pityCount-state.getPityCount()).toLocaleString("ja-JP")+"回。");
+    }
+    const targets=anagramJackpots.map(item=>({word:item.word,label:anagramJackpotTiers[item.tier]}));
+    if(rules.pity&&!targets.some(item=>item.word===rules.pityTarget))
+      targets.push({word:rules.pityTarget,label:"天井指定"});
+    if(!targets.length){appendText("大当たり設定に文字列を登録すると、次の抽選での当選確率がここに表示されます。");return;}
+    for(const item of targets){
+      const p=state.probability(item.word);
+      const row=document.createElement("div");row.className="anagram-maint-odds-row";
+      const label=document.createElement("strong");label.textContent=item.label+" · "+item.word;
+      const chance=document.createElement("span");chance.textContent=anagramPercent(p);
+      if(p.forced&&p.numerator>0n)chance.textContent+="（天井確定）";
+      else if(p.numerator>0n&&p.numerator<p.denominator){
+        const approximate=p.denominator/p.numerator;
+        if(approximate<1000000000000000000n)chance.textContent+=" · 約1/"+approximate.toLocaleString("ja-JP");
+      }
+      row.append(label,chance);anagramMaintOdds.appendChild(row);
+    }
+    appendText("確率は現時点での「次の1回」の条件付き確率。被り無しでは未獲得候補の残り方、天井では残り回数によって変化します。");
+    if(rules.duplicates==="none"&&rules.pity)appendText("天井確定時だけは被り無しより天井が優先され、既出文字列が再出現する場合があります。");
+  }
+  anagramMaintOpen.addEventListener("click",()=>{
+    if(!anagramRolling)showAnagramMaintSettings();
+  });
+  anagramMaintClose.addEventListener("click",()=>anagramMaintDialog.close());
+  anagramMaintCancel.addEventListener("click",()=>anagramMaintDialog.close());
+  anagramMaintAllow.addEventListener("change",()=>{
+    anagramMaintAllow.checked=true;anagramMaintNone.checked=false;
+    updateAnagramMaintAvailability();renderAnagramMaintOdds();
+  });
+  anagramMaintNone.addEventListener("change",()=>{
+    anagramMaintNone.checked=true;anagramMaintAllow.checked=false;
+    updateAnagramMaintAvailability();renderAnagramMaintOdds();
+  });
+  for(const input of [anagramMaintDupScope,anagramMaintPity,anagramMaintPityCount,anagramMaintPityScope,anagramMaintPityTarget]){
+    input.addEventListener("change",()=>{updateAnagramMaintAvailability();renderAnagramMaintOdds();});
+    input.addEventListener("input",renderAnagramMaintOdds);
+  }
+  anagramMaintSave.addEventListener("click",()=>{
+    if(anagramRolling)return;
+    const rules=readAnagramMaintDraft();
+    const entries=Array.from(anagramInputs.querySelectorAll("input"),(input,index)=>({character:input.value.trim(),number:index+1})).filter(item=>item.character);
+    const err=validateAnagramMaint(rules,entries);
+    if(err){anagramMaintStatus.textContent=err;return;}
+    try {localStorage.setItem(anagramMaintKey,JSON.stringify(rules));}
+    catch(error){anagramMaintStatus.textContent="ブラウザに保存できませんでした。空き容量を確認してください。";return;}
+    anagramMaint={...rules};
+    anagramMaintDialog.close();
+    anagramSaveFeedback.dataset.state="saved";
+    anagramSaveFeedback.textContent="メンテナンス設定をブラウザに保存しました。";
   });
 
   // 現在の有効文字で作れるユニークな結果は、異なる文字数 ^ 抽選回数。
