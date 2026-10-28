@@ -529,6 +529,11 @@
   .anagram-batch-result { min-width:75px; max-width:180px; padding:12px 13px; border:1px solid var(--line); border-radius:12px; background:var(--bg2); text-align:center; }
   .anagram-batch-result-word { display:block; font-weight:700; font-size:17px; overflow-wrap:anywhere; }
   .anagram-batch-result-index { display:block; color:var(--muted); font-size:10px; margin-top:6px; }
+  .anagram-batch-final-reveal { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:17px; width:min(480px,90vw); min-height:210px; padding:24px 28px; border:2px solid var(--accent); border-radius:27px; background:radial-gradient(circle at 50% 0%,color-mix(in srgb,var(--accent) 18%,transparent),transparent 70%),var(--bg2); box-shadow:0 0 38px color-mix(in srgb,var(--accent) 32%,transparent),inset 0 0 18px color-mix(in srgb,var(--accent) 12%,transparent); animation:anagramBatchFinalReveal .5s cubic-bezier(.16,.86,.3,1.06) both; text-align:center; }
+  .anagram-batch-final-label { color:var(--accent); font-size:clamp(16px,3vw,22px); font-weight:700; letter-spacing:.17em; }
+  .anagram-batch-final-word { display:block; max-width:100%; color:var(--text); font-size:clamp(34px,8vw,68px); font-weight:800; line-height:1.35; letter-spacing:.08em; overflow-wrap:anywhere; text-shadow:0 0 22px color-mix(in srgb,var(--accent) 35%,transparent); }
+  @keyframes anagramBatchFinalReveal { 0% { opacity:0; transform:scale(.75) translateY(20px); } 100% { opacity:1; transform:scale(1) translateY(0); } }
+  @media (prefers-reduced-motion:reduce) { .anagram-batch-final-reveal { animation:none; } }
   /* Gold / silver / bronze exact-match jackpots */
   [data-jackpot="gold"] { --jackpot-line:#eabf50; --jackpot-shine:#fff0a7; --jackpot-glow:rgba(248,188,55,.38); --jackpot-tint:rgba(121,75,7,.47); }
   [data-jackpot="silver"] { --jackpot-line:#c2daeb; --jackpot-shine:#f8fdff; --jackpot-glow:rgba(172,217,250,.33); --jackpot-tint:rgba(52,85,113,.47); }
@@ -3302,9 +3307,10 @@
     }
     function finishAnagramBatch(){
       if (!anagramRolling) return;
-      const recent = batchRecords.slice(-12).reverse();
+      // 12件の表示制限をなくし、今回の抽選結果をすべて新しい順で表示する。
+      const allResults = batchRecords.slice().reverse();
       const uniqueCount = new Set(batchRecords.map(item=>item.word)).size;
-      anagramHistory.unshift(...batchRecords.reverse());
+      anagramHistory.unshift(...allResults);
       if (!anagramPlayers.includes(playerName)) anagramPlayers.push(playerName);
       saveAnagramPlayers();
       renderAnagramPlayers();
@@ -3314,8 +3320,8 @@
       stopAnagramRoll();
       anagramBatchProgress.hidden = true;
       anagramResults.classList.add("anagram-batch-results");
-      showAnagramJackpotBadges(batchRecords.map(item=>item.word),false);
-      recent.forEach((item,index)=>{
+      showAnagramJackpotBadges(allResults.map(item=>item.word),false);
+      allResults.forEach((item,index)=>{
         const card = document.createElement("div");
         card.className = "anagram-batch-result";
         const winning = getAnagramJackpot(item.word);
@@ -3343,11 +3349,11 @@
       anagramBatchStatus.textContent =
         count.toLocaleString("ja-JP") + "回の結果を履歴に追加（今回 " +
         uniqueCount.toLocaleString("ja-JP") + "パターン）。" +
-        (count > 12 ? "最新12件を表示中。" : "全結果を表示中。") +
+        "全" + count.toLocaleString("ja-JP") + "件の結果を表示中。" +
         (skipping ? " 演出はスキップしました。" : "") +
         (saved ? "" : " ※ブラウザへの履歴保存に失敗しました。");
       if (anagramDataDialog.open) renderAnagramData();
-      anagramWord.scrollIntoView({block:"nearest",behavior:"auto"});
+      anagramResults.scrollIntoView({block:"nearest",behavior:"auto"});
     }
     function processAnagramBatchFast(){
       if (!anagramRolling) return;
@@ -3406,8 +3412,32 @@
             showNextCharacter();
           } else {
             updateBatchProgress(drawNumber);
+            // 各回の文字をすべて公開したあと、完成した文字列を3秒間発表する。
+            // 当たりの場合は同じ3秒を金・銀・銅の専用演出に使う。
             const winning = getAnagramJackpot(record.word);
-            const continueBatch = () => {
+            if (winning){
+              showAnagramJackpotReveal(
+                record.word, winning,
+                drawNumber + " / " + count + " 回目 · 結果発表（3秒）"
+              );
+            } else {
+              const panel = document.createElement("div");
+              panel.className = "anagram-batch-final-reveal";
+              const label = document.createElement("span");
+              label.className = "anagram-batch-final-label";
+              label.textContent = "RESULT · " + drawNumber + " / " + count;
+              const completeWord = document.createElement("strong");
+              completeWord.className = "anagram-batch-final-word";
+              completeWord.textContent = record.word;
+              panel.append(label,completeWord);
+              anagramPopupLetter.replaceChildren(panel);
+              anagramPopup.removeAttribute("data-jackpot");
+              anagramPopupProgress.textContent = "完成した " + letters.length + "文字の結果発表（3秒）";
+              anagramPopup.hidden = false;
+              anagramPopup.setAttribute("aria-hidden","false");
+            }
+            anagramBatchStatus.textContent = drawNumber + " / " + count + " 回目 結果発表中…";
+            anagramTimer = setTimeout(() => {
               if (!anagramRolling || skipping) return;
               anagramPopup.removeAttribute("data-jackpot");
               if (drawNumber < count){
@@ -3415,13 +3445,7 @@
               } else {
                 finishAnagramBatch();
               }
-            };
-            if (winning){
-              showAnagramJackpotReveal(record.word,winning,drawNumber+" / "+count+" 回目 · 大当たり！");
-              anagramTimer = setTimeout(continueBatch,1500);
-            } else {
-              continueBatch();
-            }
+            },3000);
           }
         },650);
       }
